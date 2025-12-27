@@ -1,98 +1,165 @@
+import { useState } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { StatCard } from '@/components/dashboard/StatCard';
+import { InsightCard } from '@/components/dashboard/InsightCard';
+import { RequestsTable } from '@/components/dashboard/RequestsTable';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { 
-  Settings2, 
-  Wrench, 
-  CheckCircle,
-  ArrowRight,
+  AlertTriangle, 
+  Users, 
+  ClipboardList,
+  Search,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
-  const { requests, equipment } = useData();
+  const { requests, equipment, teams } = useData();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const stats = {
-    totalEquipment: equipment.length,
-    activeEquipment: equipment.filter(e => e.status === 'active').length,
-    openRequests: requests.filter(r => r.status === 'new' || r.status === 'in_progress').length,
-    completedRequests: requests.filter(r => r.status === 'repaired').length,
+  // Calculate stats
+  const criticalEquipment = equipment.filter(e => e.status === 'maintenance' || e.status === 'scrapped').length;
+  const openRequests = requests.filter(r => r.status === 'new' || r.status === 'in_progress').length;
+  const overdueRequests = requests.filter(r => {
+    const scheduled = new Date(r.scheduledDate);
+    return (r.status === 'new' || r.status === 'in_progress') && scheduled < new Date();
+  }).length;
+  
+  // Calculate technician utilization
+  const totalTechnicians = teams.reduce((acc, team) => acc + team.technicians.length, 0);
+  const assignedTechnicians = new Set(
+    requests
+      .filter(r => r.status === 'in_progress' && r.assignedTechnicianId)
+      .map(r => r.assignedTechnicianId)
+  ).size;
+  const utilizationPercent = totalTechnicians > 0 
+    ? Math.round((assignedTechnicians / totalTechnicians) * 100) 
+    : 0;
+
+  // Request status counts for workflow visibility
+  const statusCounts = {
+    new: requests.filter(r => r.status === 'new').length,
+    in_progress: requests.filter(r => r.status === 'in_progress').length,
+    repaired: requests.filter(r => r.status === 'repaired').length,
+    scrap: requests.filter(r => r.status === 'scrap').length,
   };
 
-  const handleTotalEquipmentClick = () => {
-    navigate('/equipment');
-  };
-
-  const handleOpenRequestsClick = () => {
-    navigate('/kanban?filter=open');
-  };
-
-  const handleCompletedRequestsClick = () => {
-    navigate('/kanban?filter=completed');
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/kanban?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   return (
     <MainLayout>
-      <div className="p-8 space-y-8">
-        {/* Header */}
+      <div className="p-6 lg:p-8 space-y-6">
+        {/* Header with Search */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+          className="flex flex-col lg:flex-row lg:items-center justify-between gap-4"
         >
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Welcome to <span className="gradient-text">GearGuard</span>
+            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
+              <span className="gradient-text">Dashboard</span>
             </h1>
             <p className="text-muted-foreground mt-1">
-              Monitor and manage your maintenance operations
+              Maintenance operations overview
             </p>
           </div>
-          <Button 
-            onClick={() => navigate('/kanban')} 
-            className="gap-2 glow-primary"
-          >
-            Open Requests
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <form onSubmit={handleSearch} className="w-full lg:w-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search maintenance requests..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-full lg:w-80"
+              />
+            </div>
+          </form>
         </motion.div>
 
-        {/* Stats Grid - Only 3 cards now */}
+        {/* Insight Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button onClick={handleTotalEquipmentClick} className="text-left">
-            <StatCard
-              title="Total Equipments"
-              value={stats.totalEquipment}
-              subtitle={`${stats.activeEquipment} active`}
-              icon={Settings2}
-              color="blue"
-              delay={0}
-            />
-          </button>
-          <button onClick={handleOpenRequestsClick} className="text-left">
-            <StatCard
-              title="Open Requests"
-              value={stats.openRequests}
-              subtitle="New & In Progress"
-              icon={Wrench}
-              color="orange"
-              delay={0.1}
-            />
-          </button>
-          <button onClick={handleCompletedRequestsClick} className="text-left">
-            <StatCard
-              title="Completed Requests"
-              value={stats.completedRequests}
-              subtitle="Repaired"
-              icon={CheckCircle}
-              color="green"
-              delay={0.2}
-            />
-          </button>
+          <InsightCard
+            title="Critical Equipment"
+            value={criticalEquipment}
+            subtitle={`${equipment.length} total equipment`}
+            icon={AlertTriangle}
+            variant="critical"
+            delay={0}
+            onClick={() => navigate('/equipment?filter=critical')}
+          />
+          <InsightCard
+            title="Technician Load"
+            value={`${utilizationPercent}% Utilized`}
+            subtitle={utilizationPercent > 80 ? 'Assign Carefully' : `${totalTechnicians - assignedTechnicians} available`}
+            icon={Users}
+            variant="info"
+            delay={0.1}
+            onClick={() => navigate('/teams')}
+          />
+          <InsightCard
+            title="Open Requests"
+            value={openRequests}
+            subtitle={overdueRequests > 0 ? `${overdueRequests} overdue` : 'All on schedule'}
+            icon={ClipboardList}
+            variant="success"
+            delay={0.2}
+            onClick={() => navigate('/kanban?filter=open')}
+          />
         </div>
+
+        {/* Workflow Status */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.25 }}
+          className="rounded-xl border bg-card p-4"
+        >
+          <h3 className="font-semibold mb-4">Request Workflow Status</h3>
+          <div className="flex flex-wrap gap-3">
+            <button 
+              onClick={() => navigate('/kanban?stage=new')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition-colors"
+            >
+              <div className="w-3 h-3 rounded-full bg-blue-500" />
+              <span className="font-medium">New</span>
+              <Badge variant="secondary">{statusCounts.new}</Badge>
+            </button>
+            <button 
+              onClick={() => navigate('/kanban?stage=in_progress')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
+            >
+              <div className="w-3 h-3 rounded-full bg-amber-500" />
+              <span className="font-medium">In Progress</span>
+              <Badge variant="secondary">{statusCounts.in_progress}</Badge>
+            </button>
+            <button 
+              onClick={() => navigate('/kanban?stage=repaired')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors"
+            >
+              <div className="w-3 h-3 rounded-full bg-emerald-500" />
+              <span className="font-medium">Repaired</span>
+              <Badge variant="secondary">{statusCounts.repaired}</Badge>
+            </button>
+            <button 
+              onClick={() => navigate('/kanban?stage=scrap')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors"
+            >
+              <div className="w-3 h-3 rounded-full bg-red-500" />
+              <span className="font-medium">Scrap</span>
+              <Badge variant="secondary">{statusCounts.scrap}</Badge>
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Requests Table */}
+        <RequestsTable />
       </div>
     </MainLayout>
   );
