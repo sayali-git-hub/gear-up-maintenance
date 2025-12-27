@@ -65,14 +65,14 @@
     --glow-accent: 0 8px 32px -8px hsl(187 100% 61% / 0.3);
     --glow-card: 0 4px 24px -4px hsl(215 28% 17% / 0.06);
     
-    /* Sidebar - Deep Navy theme */
-    --sidebar-background: 210 62% 11%;
-    --sidebar-foreground: 210 40% 85%;
+    /* Sidebar - Light theme */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 28% 17%;
     --sidebar-primary: 220 100% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 50% 18%;
-    --sidebar-accent-foreground: 210 40% 90%;
-    --sidebar-border: 210 50% 18%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 215 28% 17%;
+    --sidebar-border: 214 32% 91%;
     --sidebar-ring: 220 100% 56%;
   }
 
