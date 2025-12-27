@@ -1,14 +1,22 @@
-import { MaintenanceRequest, getEquipmentById, getTechnicianById, getTeamById } from '@/lib/data';
+import { MaintenanceRequest, getEquipmentById, getTechnicianById, getTeamById, MaintenanceStatus } from '@/lib/data';
 import { useNavigate } from 'react-router-dom';
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { cn } from '@/lib/utils';
-import { Clock, Wrench, User, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Clock, Wrench, AlertTriangle, GripVertical } from 'lucide-react';
 import { format, isPast, parseISO } from 'date-fns';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface KanbanCardProps {
   request: MaintenanceRequest;
   isDragging?: boolean;
 }
+
+const statusAccent: Record<MaintenanceStatus, string> = {
+  new: 'border-l-[hsl(var(--status-new))]',
+  in_progress: 'border-l-[hsl(var(--status-progress))]',
+  repaired: 'border-l-[hsl(var(--status-repaired))]',
+  scrap: 'border-l-[hsl(var(--status-scrap))]',
+};
 
 export const KanbanCard = ({ request, isDragging }: KanbanCardProps) => {
   const navigate = useNavigate();
@@ -23,36 +31,47 @@ export const KanbanCard = ({ request, isDragging }: KanbanCardProps) => {
     isPast(parseISO(request.scheduledDate));
 
   const handleClick = (e: React.MouseEvent) => {
-    // Only navigate if not dragging
     if (!isDragging) {
       navigate(`/requests/${request.id}`);
     }
+  };
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   return (
     <div
       onClick={handleClick}
       className={cn(
-        'bg-card border border-border rounded-xl p-4 cursor-grab transition-all duration-200',
-        isDragging && 'shadow-xl rotate-2 scale-105',
-        isOverdue && 'border-l-4 border-l-red-500',
-        !isDragging && 'hover:shadow-md hover:border-primary/30 cursor-pointer'
+        'bg-card border border-border rounded-xl p-4 transition-all duration-200 border-l-4',
+        statusAccent[request.status],
+        isDragging && 'shadow-2xl rotate-1 scale-[1.02] ring-2 ring-primary/20',
+        isOverdue && !isDragging && 'ring-1 ring-destructive/30 bg-destructive/5',
+        !isDragging && 'hover:shadow-lg hover:border-primary/20 cursor-pointer hover:-translate-y-0.5'
       )}
     >
+      {/* Drag Handle & Priority */}
       <div className="flex items-start justify-between gap-2 mb-3">
-        <h4 className="font-medium text-sm leading-tight">{request.subject}</h4>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <GripVertical className={cn(
+            'w-4 h-4 text-muted-foreground/40 flex-shrink-0 transition-colors',
+            isDragging && 'text-primary'
+          )} />
+          <h4 className="font-medium text-sm leading-tight truncate">{request.subject}</h4>
+        </div>
         <PriorityBadge priority={request.priority} />
       </div>
       
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {/* Equipment */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Wrench className="w-3.5 h-3.5" />
+          <Wrench className="w-3.5 h-3.5 flex-shrink-0" />
           <span className="truncate">{equipment?.name || 'Unknown'}</span>
         </div>
         
-        {/* Type badge */}
-        <div className="flex items-center gap-2">
+        {/* Type & Team badges */}
+        <div className="flex items-center gap-2 flex-wrap">
           <span className={cn(
             'text-xs px-2 py-0.5 rounded-full font-medium',
             request.type === 'corrective' 
@@ -74,40 +93,52 @@ export const KanbanCard = ({ request, isDragging }: KanbanCardProps) => {
           )}
         </div>
         
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        {/* Footer: Date & Technician */}
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+          <div className={cn(
+            'flex items-center gap-1.5 text-xs',
+            isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'
+          )}>
             <Clock className="w-3.5 h-3.5" />
             <span>{format(parseISO(request.scheduledDate), 'MMM d')}</span>
             {isOverdue && (
-              <AlertTriangle className="w-3.5 h-3.5 text-red-500 ml-1" />
+              <AlertTriangle className="w-3.5 h-3.5 animate-pulse" />
             )}
           </div>
           
           {technician ? (
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
-                <User className="w-3 h-3 text-primary" />
-              </div>
-              <span className="text-xs font-medium text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Avatar className="w-6 h-6 border border-border">
+                <AvatarFallback className="text-[10px] font-medium bg-primary/10 text-primary">
+                  {getInitials(technician.name)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-xs font-medium text-foreground">
                 {technician.name.split(' ')[0]}
               </span>
             </div>
           ) : (
-            <span className="text-xs text-muted-foreground italic">Unassigned</span>
+            <span className="text-xs text-muted-foreground/60 italic px-2 py-0.5 rounded bg-muted/50">
+              Unassigned
+            </span>
           )}
         </div>
         
-        {/* Time spent indicator */}
+        {/* Progress bar */}
         {request.timeSpent > 0 && (
           <div className="flex items-center gap-2 text-xs">
             <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
               <div 
-                className="h-full bg-primary rounded-full transition-all"
+                className={cn(
+                  'h-full rounded-full transition-all duration-500',
+                  request.timeSpent >= request.duration 
+                    ? 'bg-[hsl(var(--status-repaired))]' 
+                    : 'bg-primary'
+                )}
                 style={{ width: `${Math.min((request.timeSpent / request.duration) * 100, 100)}%` }}
               />
             </div>
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground whitespace-nowrap">
               {request.timeSpent}h / {request.duration}h
             </span>
           </div>
