@@ -7,42 +7,41 @@ const corsHeaders = {
 
 const SYSTEM_PROMPT = `You are an AI maintenance dispatcher for an enterprise maintenance system called GearGuard.
 
-Your role is to ASSIST users by recommending the most suitable maintenance team and technician
-based on the maintenance request details, team expertise, and technician workload.
+Your task is to analyze a maintenance request and determine whether it is assigned to the correct maintenance team.
 
-You must clearly explain your reasoning and never auto-assign tasks.
+Maintenance Teams and their skill descriptions:
 
-━━━━━━━━━━━━━━━━━━━━━━
-MAINTENANCE TEAMS & SKILLS
-━━━━━━━━━━━━━━━━━━━━━━
+Mechanics: Mechanical parts, motors, belts, bearings, lubrication, vibration, alignment issues.
 
-- Mechanics:
-  Mechanical parts, motors, belts, bearings, lubrication, vibration, alignment issues.
+Electricians: Electrical wiring, power supply, control panels, short circuits, sparks, sensors, voltage issues.
 
-- Electricians:
-  Electrical wiring, power supply, control panels, short circuits, sparks, sensors, voltage issues.
+IT Support: Software issues, computers, printers, networks, servers, operating systems.
 
-- IT Support:
-  Software issues, computers, printers, networks, servers, operating systems.
+HVAC Specialists: Heating, ventilation, air conditioning, cooling systems, temperature control, refrigeration.
 
-- HVAC Specialists:
-  Heating, ventilation, air conditioning, cooling systems, temperature control, refrigeration.
+Instructions:
 
-- Housekeeping & Sanitation:
-  Cleaning equipment, waste management systems, hygiene maintenance, sanitation devices.
+Analyze the request subject and description carefully.
 
-- Security Systems:
-  CCTV, access control, alarm systems, surveillance equipment, security sensors.
+Determine whether the currently assigned team is appropriate.
 
-━━━━━━━━━━━━━━━━━━━━━━
-RULES
-━━━━━━━━━━━━━━━━━━━━━━
+If the team is appropriate, confirm it.
 
-- This is a recommendation only.
-- Do NOT automatically apply assignments.
-- Always prefer workload balance when skills are equal.
-- Keep explanations short, clear, and professional.
-- Be conservative and realistic in suggestions.`;
+If not, suggest the most suitable team.
+
+Provide a short, clear reason for your decision.
+
+Assign a confidence level: High, Medium, or Low.
+
+Rules:
+
+Do NOT override automatically.
+
+This is a recommendation only.
+
+Be conservative in suggestions.
+
+Keep explanations short and professional.`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -50,68 +49,32 @@ serve(async (req) => {
   }
 
   try {
-    const { 
-      equipment_name, 
-      equipment_category, 
-      subject, 
-      description, 
-      assigned_team,
-      technicians_with_workload 
-    } = await req.json();
+    const { equipment_name, equipment_category, subject, description, assigned_team } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const technicianData = technicians_with_workload 
-      ? JSON.stringify(technicians_with_workload, null, 2)
-      : 'No technician data available';
+    const userPrompt = `Maintenance Request Details:
 
-    const userPrompt = `━━━━━━━━━━━━━━━━━━━━━━
-MAINTENANCE REQUEST DETAILS
-━━━━━━━━━━━━━━━━━━━━━━
+Equipment Name: ${equipment_name}
 
-- Equipment Name: ${equipment_name}
-- Equipment Category: ${equipment_category}
-- Request Subject: ${subject}
-- Request Description: ${description}
-- Currently Assigned Team (auto-filled): ${assigned_team}
+Equipment Category: ${equipment_category}
 
-━━━━━━━━━━━━━━━━━━━━━━
-TECHNICIAN WORKLOAD DATA
-━━━━━━━━━━━━━━━━━━━━━━
+Request Subject: ${subject}
 
-Each technician has a number of currently active (open) maintenance tasks.
-Lower workload is preferred to ensure balanced work distribution.
+Request Description: ${description}
 
-Available Technicians (JSON):
-${technicianData}
+Currently Assigned Team: ${assigned_team}
 
-━━━━━━━━━━━━━━━━━━━━━━
-INSTRUCTIONS
-━━━━━━━━━━━━━━━━━━━━━━
-
-1. Analyze the request subject and description carefully.
-2. Validate whether the currently assigned team is appropriate based on skill matching.
-3. If the team is not appropriate, suggest the most suitable team.
-4. From the selected team, recommend the technician with the LOWEST active task count.
-5. Explain your reasoning using:
-   - Skill match from the issue description
-   - Technician workload balance
-6. Assign a confidence level: High, Medium, or Low.
-
-━━━━━━━━━━━━━━━━━━━━━━
-RESPONSE FORMAT (STRICT JSON ONLY)
-━━━━━━━━━━━━━━━━━━━━━━
+Response Format (STRICT JSON ONLY):
 
 {
   "is_correct_team": true or false,
   "recommended_team": "Team Name",
-  "recommended_technician": "Technician Name or null if no data",
   "confidence": "High | Medium | Low",
-  "reason": "Short explanation in one sentence",
-  "workload_snapshot": ["Technician Name – X active tasks", "..."]
+  "reason": "Short explanation in one sentence"
 }`;
 
     console.log('Analyzing maintenance request:', { equipment_name, subject, assigned_team });
@@ -129,7 +92,7 @@ RESPONSE FORMAT (STRICT JSON ONLY)
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.3,
-        max_tokens: 800,
+        max_tokens: 500,
       }),
     });
 
@@ -171,10 +134,8 @@ RESPONSE FORMAT (STRICT JSON ONLY)
       result = {
         is_correct_team: true,
         recommended_team: assigned_team,
-        recommended_technician: null,
         confidence: 'Low',
-        reason: 'Unable to analyze the request. Manual review recommended.',
-        workload_snapshot: []
+        reason: 'Unable to analyze the request. Manual review recommended.'
       };
     }
 
