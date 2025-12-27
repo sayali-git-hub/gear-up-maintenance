@@ -72,9 +72,9 @@ const EquipmentPage = () => {
               <Settings2 className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Equipment Registry</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Equipments Registry</h1>
               <p className="text-sm text-muted-foreground">
-                Manage and track all your equipment
+                Manage and track all your equipments
               </p>
             </div>
           </div>
@@ -94,7 +94,7 @@ const EquipmentPage = () => {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search equipment..."
+              placeholder="Search equipments..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -144,7 +144,7 @@ const EquipmentPage = () => {
             className="text-center py-12"
           >
             <Settings2 className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground">No equipment found</p>
+            <p className="text-muted-foreground">No equipments found</p>
           </motion.div>
         )}
       </div>

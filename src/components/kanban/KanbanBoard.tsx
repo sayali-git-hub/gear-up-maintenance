@@ -13,9 +13,10 @@ const columns: { status: MaintenanceStatus; title: string; color: string }[] = [
 
 interface KanbanBoardProps {
   filters?: KanbanFilters;
+  search?: string;
 }
 
-export const KanbanBoard = ({ filters }: KanbanBoardProps) => {
+export const KanbanBoard = ({ filters, search }: KanbanBoardProps) => {
   const { requests, equipment, updateRequestStatus } = useData();
 
   const handleDragEnd = (result: DropResult) => {
@@ -27,8 +28,20 @@ export const KanbanBoard = ({ filters }: KanbanBoardProps) => {
     updateRequestStatus(draggableId, newStatus);
   };
 
-  // Apply filters
+  // Apply filters and search
   const filteredRequests = requests.filter((req) => {
+    // Text search
+    if (search) {
+      const searchLower = search.toLowerCase();
+      const eq = equipment.find((e) => e.id === req.equipmentId);
+      const matchesSearch = 
+        req.subject.toLowerCase().includes(searchLower) ||
+        eq?.name.toLowerCase().includes(searchLower) ||
+        req.status.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+    }
+
+    // Apply filters
     if (filters?.equipmentId && req.equipmentId !== filters.equipmentId) return false;
     
     if (filters?.teamId) {

@@ -1,16 +1,18 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { motion } from 'framer-motion';
-import { Kanban, Plus, Filter, X } from 'lucide-react';
+import { Kanban, Plus, Filter, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { CreateRequestDialog } from '@/components/dialogs/CreateRequestDialog';
 import { FilterDialog, KanbanFilters } from '@/components/dialogs/FilterDialog';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 const KanbanPage = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showFilterDialog, setShowFilterDialog] = useState(false);
+  const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<KanbanFilters>({
     equipmentId: '',
     teamId: '',
@@ -47,13 +49,22 @@ const KanbanPage = () => {
               <Kanban className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Kanban Board</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Requests</h1>
               <p className="text-sm text-muted-foreground">
                 Drag and drop to manage request status
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search requests..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 w-64"
+              />
+            </div>
             <Button 
               variant="outline" 
               size="sm" 
@@ -90,7 +101,7 @@ const KanbanPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <KanbanBoard filters={filters} />
+          <KanbanBoard filters={filters} search={search} />
         </motion.div>
       </div>
 
