@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DataProvider } from "@/contexts/DataContext";
+import { SidebarProvider } from "@/contexts/SidebarContext";
 import Index from "./pages/Index";
 import KanbanPage from "./pages/KanbanPage";
 import CalendarPage from "./pages/CalendarPage";
@@ -17,21 +18,23 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <DataProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/kanban" element={<KanbanPage />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/equipment" element={<EquipmentPage />} />
-            <Route path="/equipment/:id" element={<EquipmentDetailPage />} />
-            <Route path="/teams" element={<TeamsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <SidebarProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/kanban" element={<KanbanPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/equipment" element={<EquipmentPage />} />
+              <Route path="/equipment/:id" element={<EquipmentDetailPage />} />
+              <Route path="/teams" element={<TeamsPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </SidebarProvider>
     </DataProvider>
   </QueryClientProvider>
 );

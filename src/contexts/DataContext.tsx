@@ -29,6 +29,7 @@ interface DataContextType {
   updateEquipmentStatus: (equipmentId: string, status: Equipment['status']) => void;
   addEquipment: (equipment: Omit<Equipment, 'id'>) => void;
   addTeam: (team: Omit<MaintenanceTeam, 'id'> & { technicians: Omit<Technician, 'teamId'>[] }) => void;
+  addTechnicianToTeam: (teamId: string, technician: { name: string; email?: string }) => void;
   updateUserProfile: (profile: Partial<UserProfile>) => void;
 }
 
@@ -111,6 +112,27 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTeams(prev => [...prev, teamEntry]);
   };
 
+  const addTechnicianToTeam = (teamId: string, technician: { name: string; email?: string }) => {
+    setTeams(prev =>
+      prev.map(team => {
+        if (team.id === teamId) {
+          const newTechnician: Technician = {
+            id: `tech-${Date.now()}`,
+            name: technician.name,
+            email: technician.email || '',
+            avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(technician.name)}`,
+            teamId: teamId,
+          };
+          return {
+            ...team,
+            technicians: [...team.technicians, newTechnician],
+          };
+        }
+        return team;
+      })
+    );
+  };
+
   const updateUserProfile = (profile: Partial<UserProfile>) => {
     setUserProfile(prev => ({ ...prev, ...profile }));
   };
@@ -128,6 +150,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateEquipmentStatus,
         addEquipment,
         addTeam,
+        addTechnicianToTeam,
         updateUserProfile,
       }}
     >

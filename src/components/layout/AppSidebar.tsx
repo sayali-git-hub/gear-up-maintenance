@@ -12,23 +12,24 @@ import {
   User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useData } from '@/contexts/DataContext';
+import { useSidebarContext } from '@/contexts/SidebarContext';
 import { ProfileDialog } from '@/components/dialogs/ProfileDialog';
+import { useState } from 'react';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: Kanban, label: 'Kanban Board', path: '/kanban' },
+  { icon: Kanban, label: 'Requests', path: '/kanban' },
   { icon: Calendar, label: 'Calendar', path: '/calendar' },
-  { icon: Settings2, label: 'Equipment', path: '/equipment' },
+  { icon: Settings2, label: 'Equipments', path: '/equipment' },
   { icon: Users, label: 'Teams', path: '/teams' },
 ];
 
 export const AppSidebar = () => {
   const location = useLocation();
   const { userProfile } = useData();
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed } = useSidebarContext();
   const [showProfileDialog, setShowProfileDialog] = useState(false);
 
   const getInitials = (name: string) => {
@@ -46,7 +47,7 @@ export const AppSidebar = () => {
         initial={false}
         animate={{ width: collapsed ? 72 : 260 }}
         transition={{ duration: 0.2, ease: 'easeInOut' }}
-        className="h-screen bg-sidebar flex flex-col border-r border-sidebar-border relative"
+        className="h-screen bg-sidebar flex flex-col border-r border-sidebar-border fixed left-0 top-0 bottom-0 z-40"
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
@@ -103,10 +104,10 @@ export const AppSidebar = () => {
           })}
         </nav>
 
-        {/* Collapse button */}
+        {/* Collapse button - vertically centered */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center shadow-md hover:bg-accent transition-colors"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center shadow-md hover:bg-accent transition-colors z-10"
         >
           {collapsed ? (
             <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
