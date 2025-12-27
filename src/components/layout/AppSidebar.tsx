@@ -19,8 +19,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 import { ProfileDialog } from '@/components/dialogs/ProfileDialog';
 import { ThemeToggle, ThemeToggleCompact } from '@/components/ui/ThemeToggle';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import gearGuardLogo from '@/assets/gear-guard-logo.png';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -36,6 +37,17 @@ export const AppSidebar = () => {
   const { logout } = useAuth();
   const { collapsed, setCollapsed } = useSidebarContext();
   const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const getInitials = (name: string) => {
     return name
@@ -57,9 +69,17 @@ export const AppSidebar = () => {
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
+            {isDark ? (
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+            ) : (
+              <img 
+                src={gearGuardLogo} 
+                alt="GearGuard Logo" 
+                className="w-10 h-10 object-contain"
+              />
+            )}
             <AnimatePresence>
               {!collapsed && (
                 <motion.div
