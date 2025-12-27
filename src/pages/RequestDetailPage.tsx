@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { getEquipmentById, getTeamById, getTechnicianById } from '@/lib/data';
+import { getEquipmentById, getTeamById, getTechnicianById, maintenanceTeams } from '@/lib/data';
 import { motion } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
 import { 
@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { cn } from '@/lib/utils';
+import { AITeamRecommendation } from '@/components/ai/AITeamRecommendation';
 
 const statusConfig = {
   new: { icon: AlertCircle, label: 'New Request', className: 'text-blue-600 bg-blue-500/10', color: 'bg-blue-500' },
@@ -35,7 +36,7 @@ const statusConfig = {
 const RequestDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { requests, updateRequestStatus } = useData();
+  const { requests, updateRequestStatus, updateRequest } = useData();
   const { user } = useAuth();
 
   const request = requests.find(r => r.id === id);
@@ -63,6 +64,16 @@ const RequestDetailPage = () => {
 
   const handleStatusChange = (newStatus: 'new' | 'in_progress' | 'repaired' | 'scrap') => {
     updateRequestStatus(request.id, newStatus);
+  };
+
+  const handleApplyTeamRecommendation = (teamName: string) => {
+    const recommendedTeam = maintenanceTeams.find(t => t.name === teamName);
+    if (recommendedTeam) {
+      updateRequest(request.id, { 
+        teamId: recommendedTeam.id,
+        assignedTechnicianId: null // Reset technician when team changes
+      });
+    }
   };
 
   return (
@@ -263,7 +274,7 @@ const RequestDetailPage = () => {
               Assignment
             </h2>
             
-            {team && (
+            {team ? (
               <div 
                 className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
                 onClick={() => navigate(`/teams/${team.id}`)}
@@ -278,6 +289,10 @@ const RequestDetailPage = () => {
                   <p className="font-medium">{team.name}</p>
                   <p className="text-xs text-muted-foreground">{team.description}</p>
                 </div>
+              </div>
+            ) : (
+              <div className="p-3 rounded-lg border border-dashed border-border text-center">
+                <p className="text-sm text-muted-foreground">No team assigned</p>
               </div>
             )}
             
@@ -303,6 +318,18 @@ const RequestDetailPage = () => {
                   <p className="text-sm text-muted-foreground">No technician assigned</p>
                 </div>
               )}
+            </div>
+
+            {/* AI Team Recommendation */}
+            <div className="pt-2 border-t border-border">
+              <AITeamRecommendation
+                equipmentName={equipment?.name || 'Unknown'}
+                equipmentCategory={equipment?.department || 'Unknown'}
+                subject={request.subject}
+                description={request.description}
+                assignedTeam={team?.name || null}
+                onApplyRecommendation={handleApplyTeamRecommendation}
+              />
             </div>
           </motion.div>
         </div>
