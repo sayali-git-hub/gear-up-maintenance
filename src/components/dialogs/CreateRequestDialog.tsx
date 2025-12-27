@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { getTeamById, getTechnicianById, MaintenanceType } from '@/lib/data';
+import { MaintenanceType, Technician } from '@/lib/data';
 import {
   Dialog,
   DialogContent,
@@ -20,10 +20,12 @@ import {
 } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Wrench } from 'lucide-react';
+import { CalendarIcon, Wrench, Users, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+
+const NONE_VALUE = '__none__';
 
 interface CreateRequestDialogProps {
   open: boolean;
@@ -38,7 +40,7 @@ export const CreateRequestDialog = ({
   defaultDate,
   defaultType = 'corrective',
 }: CreateRequestDialogProps) => {
-  const { equipment, addRequest } = useData();
+  const { equipment, teams, addRequest } = useData();
   
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
@@ -47,6 +49,8 @@ export const CreateRequestDialog = ({
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [duration, setDuration] = useState('4');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(defaultDate);
+  const [selectedTeamId, setSelectedTeamId] = useState('');
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState('');
 
   // Update state when dialog opens with new defaults
   useEffect(() => {
@@ -56,13 +60,42 @@ export const CreateRequestDialog = ({
     }
   }, [open, defaultDate, defaultType]);
 
+  // Get selected equipment and auto-set team
   const selectedEquipment = equipment.find(e => e.id === equipmentId);
-  const team = selectedEquipment ? getTeamById(selectedEquipment.maintenanceTeamId) : null;
-  const defaultTech = selectedEquipment ? getTechnicianById(selectedEquipment.defaultTechnicianId) : null;
+  
+  // When equipment changes, auto-select its maintenance team
+  useEffect(() => {
+    if (selectedEquipment) {
+      setSelectedTeamId(selectedEquipment.maintenanceTeamId);
+      setSelectedTechnicianId(selectedEquipment.defaultTechnicianId || '');
+    } else {
+      setSelectedTeamId('');
+      setSelectedTechnicianId('');
+    }
+  }, [selectedEquipment]);
+
+  // Get technicians based on selected team
+  const selectedTeam = teams.find(t => t.id === selectedTeamId);
+  const availableTechnicians: Technician[] = selectedTeam?.technicians || [];
+
+  // When team changes, reset technician if not in new team
+  useEffect(() => {
+    if (selectedTeamId && selectedTechnicianId) {
+      const techInTeam = availableTechnicians.find(t => t.id === selectedTechnicianId);
+      if (!techInTeam) {
+        setSelectedTechnicianId('');
+      }
+    }
+  }, [selectedTeamId, availableTechnicians, selectedTechnicianId]);
 
   const handleSubmit = () => {
     if (!subject || !equipmentId || !scheduledDate) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!selectedTeamId) {
+      toast.error('Please select a maintenance team');
       return;
     }
 
@@ -74,7 +107,7 @@ export const CreateRequestDialog = ({
       status: 'new',
       scheduledDate: format(scheduledDate, 'yyyy-MM-dd'),
       duration: parseInt(duration),
-      assignedTechnicianId: selectedEquipment?.defaultTechnicianId || null,
+      assignedTechnicianId: selectedTechnicianId || null,
       timeSpent: 0,
       priority,
     });
@@ -90,11 +123,13 @@ export const CreateRequestDialog = ({
     setPriority('medium');
     setDuration('4');
     setScheduledDate(undefined);
+    setSelectedTeamId('');
+    setSelectedTechnicianId('');
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wrench className="w-5 h-5 text-primary" />
@@ -129,20 +164,72 @@ export const CreateRequestDialog = ({
                 ))}
               </SelectContent>
             </Select>
-            
-            {/* Auto-assigned team info */}
-            {team && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 p-2 rounded-lg mt-2">
-                <div 
-                  className="w-2 h-2 rounded-full" 
-                  style={{ backgroundColor: team.color }}
-                />
-                <span>
-                  Auto-assigned to <strong>{team.name}</strong>
-                  {defaultTech && <> • Technician: {defaultTech.name}</>}
-                </span>
-              </div>
+          </div>
+
+          {/* Maintenance Team */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Maintenance Team *
+            </Label>
+            <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select team" />
+              </SelectTrigger>
+              <SelectContent>
+                {teams.map((team) => (
+                  <SelectItem key={team.id} value={team.id}>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: team.color }}
+                      />
+                      {team.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedTeam && (
+              <p className="text-xs text-muted-foreground">
+                {selectedTeam.technicians.length} technician(s) available
+              </p>
             )}
+          </div>
+
+          {/* Technician */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Assigned Technician
+            </Label>
+            <Select 
+              value={selectedTechnicianId || NONE_VALUE} 
+              onValueChange={(v) => setSelectedTechnicianId(v === NONE_VALUE ? '' : v)}
+              disabled={!selectedTeamId || availableTechnicians.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={!selectedTeamId ? "Select team first" : "Select technician (optional)"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NONE_VALUE}>
+                  <span className="text-muted-foreground">Unassigned</span>
+                </SelectItem>
+                {availableTechnicians.map((tech) => (
+                  <SelectItem key={tech.id} value={tech.id}>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white"
+                        style={{ backgroundColor: selectedTeam?.color || '#6366f1' }}
+                      >
+                        {tech.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      {tech.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Type and Priority */}
