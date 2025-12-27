@@ -92,13 +92,16 @@ const AuthPage = () => {
   const hasRegisteredUsers = registeredUsers.length > 0;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
       {/* Theme toggle in corner */}
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         onClick={() => setIsDark(!isDark)}
-        className="absolute top-4 right-4"
+        className="absolute top-4 right-4 bg-card"
       >
         {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
       </Button>
@@ -106,22 +109,22 @@ const AuthPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-[hsl(35,95%,60%)]">
-            <Shield className="w-8 h-8 text-primary-foreground" />
+          <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <Shield className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold tracking-tight">
             <span className="gradient-text">GearGuard</span>
           </h1>
         </div>
 
-        <Card className="border-border/50 shadow-xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome</CardTitle>
-            <CardDescription>
+        <Card className="border-border shadow-xl bg-card/95 backdrop-blur-sm">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-2xl font-semibold">Welcome</CardTitle>
+            <CardDescription className="text-muted-foreground">
               {activeTab === 'signup' 
                 ? 'Create an account to get started'
                 : 'Sign in to your account'
@@ -137,9 +140,15 @@ const AuthPage = () => {
             )}
 
             <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setError(null); }} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                <TabsTrigger value="login" disabled={!hasRegisteredUsers}>
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary">
+                <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  Sign Up
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="login" 
+                  disabled={!hasRegisteredUsers}
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
                   Login
                 </TabsTrigger>
               </TabsList>
@@ -147,7 +156,7 @@ const AuthPage = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Label htmlFor="signup-name" className="text-foreground font-medium">Full Name</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
@@ -156,13 +165,13 @@ const AuthPage = () => {
                         placeholder="John Doe"
                         value={signupName}
                         onChange={(e) => setSignupName(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 bg-background border-border focus:border-primary"
                         required
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email" className="text-foreground font-medium">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
@@ -171,13 +180,13 @@ const AuthPage = () => {
                         placeholder="you@example.com"
                         value={signupEmail}
                         onChange={(e) => setSignupEmail(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 bg-background border-border focus:border-primary"
                         required
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password" className="text-foreground font-medium">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
@@ -186,7 +195,7 @@ const AuthPage = () => {
                         placeholder="••••••••"
                         value={signupPassword}
                         onChange={(e) => setSignupPassword(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 bg-background border-border focus:border-primary"
                         required
                         minLength={4}
                       />
@@ -195,7 +204,7 @@ const AuthPage = () => {
                       Password must be at least 4 characters
                     </p>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full shadow-md" disabled={isLoading}>
                     {isLoading ? 'Creating account...' : 'Create Account'}
                   </Button>
                 </form>
@@ -228,7 +237,7 @@ const AuthPage = () => {
                 ) : (
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="login-email">Email</Label>
+                      <Label htmlFor="login-email" className="text-foreground font-medium">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
@@ -237,13 +246,13 @@ const AuthPage = () => {
                           placeholder="you@example.com"
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 bg-background border-border focus:border-primary"
                           required
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="login-password">Password</Label>
+                      <Label htmlFor="login-password" className="text-foreground font-medium">Password</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
@@ -252,13 +261,13 @@ const AuthPage = () => {
                           placeholder="••••••••"
                           value={loginPassword}
                           onChange={(e) => setLoginPassword(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 bg-background border-border focus:border-primary"
                           required
                           minLength={4}
                         />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button type="submit" className="w-full shadow-md" disabled={isLoading}>
                       {isLoading ? 'Signing in...' : 'Sign In'}
                     </Button>
                   </form>
@@ -278,6 +287,11 @@ const AuthPage = () => {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Enterprise footer */}
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          Enterprise Maintenance Management Platform
+        </p>
       </motion.div>
     </div>
   );
