@@ -1,15 +1,14 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { EquipmentCard } from '@/components/equipment/EquipmentCard';
 import { useData } from '@/contexts/DataContext';
 import { motion } from 'framer-motion';
-import { Settings2, Search, Plus, Filter, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Settings2 } from 'lucide-react';
 import { useState } from 'react';
 import { AddEquipmentDialog } from '@/components/dialogs/AddEquipmentDialog';
 import { EquipmentFilterDialog, EquipmentFilters } from '@/components/dialogs/EquipmentFilterDialog';
 import { Badge } from '@/components/ui/badge';
-import { ViewModeToggle, ViewMode } from '@/components/ui/ViewModeToggle';
+import { ViewMode } from '@/components/ui/ViewModeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EquipmentStatusBadge } from '@/components/ui/EquipmentStatusBadge';
 import { useNavigate } from 'react-router-dom';
@@ -69,73 +68,23 @@ const EquipmentPage = () => {
   return (
     <MainLayout>
       <div className="p-8 space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Settings2 className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Equipments Registry</h1>
-              <p className="text-sm text-muted-foreground">
-                Manage and track all your equipments
-              </p>
-            </div>
-          </div>
-          <Button className="gap-2" onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4" />
-            Add Equipment
-          </Button>
-        </motion.div>
-
-        {/* Search, Filter and View Toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
-        >
-          <div className="flex flex-col md:flex-row gap-4 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search equipments..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                className="gap-2"
-                onClick={() => setShowFilterDialog(true)}
-              >
-                <Filter className="w-4 h-4" />
-                Filter
-                {activeFiltersCount > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-5 px-1.5">
-                    {activeFiltersCount}
-                  </Badge>
-                )}
-              </Button>
-              {activeFiltersCount > 0 && (
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleClearFilters}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-        </motion.div>
+        <PageHeader
+          icon={Settings2}
+          title="Equipments Registry"
+          description="Manage and track all your equipments"
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search equipments..."
+          showFilter
+          activeFiltersCount={activeFiltersCount}
+          onFilterClick={() => setShowFilterDialog(true)}
+          onClearFilters={handleClearFilters}
+          showViewToggle
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          addButtonLabel="Add Equipment"
+          onAddClick={() => setShowAddDialog(true)}
+        />
 
         {/* Equipment Grid or List */}
         {viewMode === 'grid' ? (
