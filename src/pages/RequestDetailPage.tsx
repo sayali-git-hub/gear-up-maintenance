@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getEquipmentById, getTeamById, getTechnicianById } from '@/lib/data';
+import { useAIDispatch } from '@/hooks/useAIDispatch';
+import { AIDispatchDialog } from '@/components/dialogs/AIDispatchDialog';
+import { ManualAssignDialog } from '@/components/dialogs/ManualAssignDialog';
 import { motion } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
 import { 
@@ -19,11 +23,14 @@ import {
   Settings2,
   FileText,
   MapPin,
+  Bot,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const statusConfig = {
   new: { icon: AlertCircle, label: 'New Request', className: 'text-blue-600 bg-blue-500/10', color: 'bg-blue-500' },
@@ -35,8 +42,12 @@ const statusConfig = {
 const RequestDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { requests, updateRequestStatus } = useData();
+  const { requests, updateRequestStatus, updateRequest, teams } = useData();
   const { user } = useAuth();
+  const { isLoading, error, recommendation, fetchRecommendation, clearRecommendation } = useAIDispatch();
+  
+  const [showAIDialog, setShowAIDialog] = useState(false);
+  const [showManualDialog, setShowManualDialog] = useState(false);
 
   const request = requests.find(r => r.id === id);
 
@@ -54,15 +65,51 @@ const RequestDetailPage = () => {
   }
 
   const equipment = getEquipmentById(request.equipmentId);
-  const team = equipment ? getTeamById(equipment.maintenanceTeamId) : null;
+  const currentTeam = equipment ? getTeamById(equipment.maintenanceTeamId) : null;
   const technician = request.assignedTechnicianId 
     ? getTechnicianById(request.assignedTechnicianId) 
     : null;
   const statusInfo = statusConfig[request.status];
   const StatusIcon = statusInfo.icon;
 
+  // Get the assigned team from technician if available
+  const assignedTeam = technician 
+    ? teams.find(t => t.id === technician.teamId) 
+    : currentTeam;
+
   const handleStatusChange = (newStatus: 'new' | 'in_progress' | 'repaired' | 'scrap') => {
     updateRequestStatus(request.id, newStatus);
+  };
+
+  const handleAIDispatch = async () => {
+    setShowAIDialog(true);
+    await fetchRecommendation(request);
+  };
+
+  const handleApplyRecommendation = (teamId: string, technicianId: string) => {
+    updateRequest(request.id, { assignedTechnicianId: technicianId });
+    const tech = getTechnicianById(technicianId);
+    const team = teams.find(t => t.id === teamId);
+    toast.success('Assignment Updated', {
+      description: `Assigned to ${tech?.name} from ${team?.name}`,
+    });
+    setShowAIDialog(false);
+    clearRecommendation();
+  };
+
+  const handleManualAssign = (teamId: string, technicianId: string) => {
+    updateRequest(request.id, { assignedTechnicianId: technicianId });
+    const tech = getTechnicianById(technicianId);
+    const team = teams.find(t => t.id === teamId);
+    toast.success('Assignment Updated', {
+      description: `Assigned to ${tech?.name} from ${team?.name}`,
+    });
+  };
+
+  const openManualFromAI = () => {
+    setShowAIDialog(false);
+    clearRecommendation();
+    setShowManualDialog(true);
   };
 
   return (
@@ -117,6 +164,17 @@ const RequestDetailPage = () => {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2">
+              {/* AI Dispatch Button */}
+              <Button 
+                onClick={handleAIDispatch}
+                variant="outline"
+                className="gap-2 border-primary/50 hover:bg-primary/10"
+              >
+                <Bot className="w-4 h-4" />
+                <span>AI Dispatch</span>
+                <Sparkles className="w-3 h-3 text-primary" />
+              </Button>
+              
               {request.status === 'new' && (
                 <Button onClick={() => handleStatusChange('in_progress')} className="gap-2">
                   <Play className="w-4 h-4" />
@@ -258,25 +316,35 @@ const RequestDetailPage = () => {
             transition={{ delay: 0.3 }}
             className="bg-card border border-border rounded-xl p-6 space-y-4"
           >
-            <h2 className="font-semibold text-lg flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              Assignment
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Assignment
+              </h2>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowManualDialog(true)}
+                className="text-xs"
+              >
+                Edit
+              </Button>
+            </div>
             
-            {team && (
+            {assignedTeam && (
               <div 
                 className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
-                onClick={() => navigate(`/teams/${team.id}`)}
+                onClick={() => navigate(`/teams/${assignedTeam.id}`)}
               >
                 <div 
                   className="w-10 h-10 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: `${team.color}20` }}
+                  style={{ backgroundColor: `${assignedTeam.color}20` }}
                 >
-                  <Users className="w-5 h-5" style={{ color: team.color }} />
+                  <Users className="w-5 h-5" style={{ color: assignedTeam.color }} />
                 </div>
                 <div>
-                  <p className="font-medium">{team.name}</p>
-                  <p className="text-xs text-muted-foreground">{team.description}</p>
+                  <p className="font-medium">{assignedTeam.name}</p>
+                  <p className="text-xs text-muted-foreground">{assignedTeam.description}</p>
                 </div>
               </div>
             )}
@@ -289,7 +357,7 @@ const RequestDetailPage = () => {
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
                   <div 
                     className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium text-white"
-                    style={{ backgroundColor: team?.color || '#6366f1' }}
+                    style={{ backgroundColor: assignedTeam?.color || '#6366f1' }}
                   >
                     {technician.name.split(' ').map(n => n[0]).join('')}
                   </div>
@@ -301,6 +369,15 @@ const RequestDetailPage = () => {
               ) : (
                 <div className="p-3 rounded-lg border border-dashed border-border text-center">
                   <p className="text-sm text-muted-foreground">No technician assigned</p>
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="mt-1"
+                    onClick={handleAIDispatch}
+                  >
+                    <Bot className="w-3 h-3 mr-1" />
+                    Get AI Recommendation
+                  </Button>
                 </div>
               )}
             </div>
@@ -350,6 +427,29 @@ const RequestDetailPage = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* AI Dispatch Dialog */}
+      <AIDispatchDialog
+        open={showAIDialog}
+        onOpenChange={(open) => {
+          setShowAIDialog(open);
+          if (!open) clearRecommendation();
+        }}
+        recommendation={recommendation}
+        isLoading={isLoading}
+        error={error}
+        onApply={handleApplyRecommendation}
+        onManualSelect={openManualFromAI}
+      />
+
+      {/* Manual Assignment Dialog */}
+      <ManualAssignDialog
+        open={showManualDialog}
+        onOpenChange={setShowManualDialog}
+        currentTeamId={technician?.teamId || currentTeam?.id || null}
+        currentTechnicianId={request.assignedTechnicianId}
+        onAssign={handleManualAssign}
+      />
     </MainLayout>
   );
 };
