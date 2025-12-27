@@ -20,6 +20,8 @@ import { toast } from 'sonner';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 
+const NONE_VALUE = '__none__';
+
 interface ProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,6 +39,9 @@ export const ProfileDialog = ({
     teamId: userProfile.teamId,
     phone: userProfile.phone,
   });
+
+  const toSelectValue = (val: string) => (val === '' ? NONE_VALUE : val);
+  const fromSelectValue = (val: string) => (val === NONE_VALUE ? '' : val);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +131,7 @@ export const ProfileDialog = ({
           <div className="space-y-2">
             <Label>Role</Label>
             <Select
-              value={formData.role}
+              value={formData.role || 'viewer'}
               onValueChange={(v) =>
                 setFormData({ ...formData, role: v })
               }
@@ -146,16 +151,16 @@ export const ProfileDialog = ({
           <div className="space-y-2">
             <Label>Assigned Team</Label>
             <Select
-              value={formData.teamId}
+              value={toSelectValue(formData.teamId)}
               onValueChange={(v) =>
-                setFormData({ ...formData, teamId: v })
+                setFormData({ ...formData, teamId: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="No team assigned" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No team assigned</SelectItem>
+                <SelectItem value={NONE_VALUE}>No team assigned</SelectItem>
                 {teams.map((team) => (
                   <SelectItem key={team.id} value={team.id}>
                     {team.name}

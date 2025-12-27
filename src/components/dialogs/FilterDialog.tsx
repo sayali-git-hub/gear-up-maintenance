@@ -17,6 +17,8 @@ import {
 import { useData } from '@/contexts/DataContext';
 import { MaintenanceStatus, MaintenanceType } from '@/lib/data';
 
+const ALL_VALUE = '__all__';
+
 export interface KanbanFilters {
   equipmentId: string;
   teamId: string;
@@ -43,6 +45,9 @@ export const FilterDialog = ({
   const [localFilters, setLocalFilters] = useState<KanbanFilters>(filters);
 
   const allTechnicians = teams.flatMap((t) => t.technicians);
+
+  const toSelectValue = (val: string) => (val === '' ? ALL_VALUE : val);
+  const fromSelectValue = (val: string) => (val === ALL_VALUE ? '' : val);
 
   const handleApply = () => {
     onApplyFilters(localFilters);
@@ -74,16 +79,16 @@ export const FilterDialog = ({
           <div className="space-y-2">
             <Label>Equipment</Label>
             <Select
-              value={localFilters.equipmentId}
+              value={toSelectValue(localFilters.equipmentId)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, equipmentId: v })
+                setLocalFilters({ ...localFilters, equipmentId: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All equipment" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All equipment</SelectItem>
+                <SelectItem value={ALL_VALUE}>All equipment</SelectItem>
                 {equipment.map((eq) => (
                   <SelectItem key={eq.id} value={eq.id}>
                     {eq.name}
@@ -96,16 +101,16 @@ export const FilterDialog = ({
           <div className="space-y-2">
             <Label>Maintenance Team</Label>
             <Select
-              value={localFilters.teamId}
+              value={toSelectValue(localFilters.teamId)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, teamId: v })
+                setLocalFilters({ ...localFilters, teamId: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All teams" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All teams</SelectItem>
+                <SelectItem value={ALL_VALUE}>All teams</SelectItem>
                 {teams.map((team) => (
                   <SelectItem key={team.id} value={team.id}>
                     {team.name}
@@ -118,16 +123,16 @@ export const FilterDialog = ({
           <div className="space-y-2">
             <Label>Technician</Label>
             <Select
-              value={localFilters.technicianId}
+              value={toSelectValue(localFilters.technicianId)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, technicianId: v })
+                setLocalFilters({ ...localFilters, technicianId: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All technicians" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All technicians</SelectItem>
+                <SelectItem value={ALL_VALUE}>All technicians</SelectItem>
                 {allTechnicians.map((tech) => (
                   <SelectItem key={tech.id} value={tech.id}>
                     {tech.name}
@@ -140,16 +145,16 @@ export const FilterDialog = ({
           <div className="space-y-2">
             <Label>Request Type</Label>
             <Select
-              value={localFilters.type}
+              value={toSelectValue(localFilters.type)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, type: v as MaintenanceType | '' })
+                setLocalFilters({ ...localFilters, type: fromSelectValue(v) as MaintenanceType | '' })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All types</SelectItem>
+                <SelectItem value={ALL_VALUE}>All types</SelectItem>
                 <SelectItem value="corrective">Corrective</SelectItem>
                 <SelectItem value="preventive">Preventive</SelectItem>
               </SelectContent>
@@ -159,16 +164,16 @@ export const FilterDialog = ({
           <div className="space-y-2">
             <Label>Priority</Label>
             <Select
-              value={localFilters.priority}
+              value={toSelectValue(localFilters.priority)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, priority: v })
+                setLocalFilters({ ...localFilters, priority: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All priorities" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All priorities</SelectItem>
+                <SelectItem value={ALL_VALUE}>All priorities</SelectItem>
                 <SelectItem value="low">Low</SelectItem>
                 <SelectItem value="medium">Medium</SelectItem>
                 <SelectItem value="high">High</SelectItem>
@@ -180,16 +185,16 @@ export const FilterDialog = ({
           <div className="space-y-2">
             <Label>Status</Label>
             <Select
-              value={localFilters.status}
+              value={toSelectValue(localFilters.status)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, status: v as MaintenanceStatus | '' })
+                setLocalFilters({ ...localFilters, status: fromSelectValue(v) as MaintenanceStatus | '' })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value={ALL_VALUE}>All statuses</SelectItem>
                 <SelectItem value="new">New</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="repaired">Repaired</SelectItem>
