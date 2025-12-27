@@ -7,11 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { AddTeamDialog } from '@/components/dialogs/AddTeamDialog';
+import { ViewModeToggle, ViewMode } from '@/components/ui/ViewModeToggle';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const TeamsPage = () => {
   const { teams } = useData();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const filteredTeams = teams.filter((team) => {
     const searchLower = search.toLowerCase();
@@ -48,12 +52,12 @@ const TeamsPage = () => {
           </Button>
         </motion.div>
 
-        {/* Search */}
+        {/* Search and View Toggle */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex flex-col md:flex-row gap-4"
+          className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
         >
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -64,14 +68,62 @@ const TeamsPage = () => {
               className="pl-10"
             />
           </div>
+          <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
         </motion.div>
 
-        {/* Teams Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredTeams.map((team, index) => (
-            <TeamCard key={team.id} team={team} delay={index * 0.1} />
-          ))}
-        </div>
+        {/* Teams Grid or List */}
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredTeams.map((team, index) => (
+              <TeamCard key={team.id} team={team} delay={index * 0.1} />
+            ))}
+          </div>
+        ) : (
+          <div className="border border-border rounded-xl overflow-hidden bg-card">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Team</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Technicians</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTeams.map((team) => (
+                  <TableRow key={team.id} className="hover:bg-muted/50">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: team.color }}
+                        />
+                        <span className="font-medium">{team.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{team.description}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-2">
+                          {team.technicians.slice(0, 4).map((tech) => (
+                            <Avatar key={tech.id} className="w-7 h-7 border-2 border-background">
+                              <AvatarImage src={tech.avatar} alt={tech.name} />
+                              <AvatarFallback className="text-xs">
+                                {tech.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {team.technicians.length} member{team.technicians.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
         {filteredTeams.length === 0 && (
           <motion.div
