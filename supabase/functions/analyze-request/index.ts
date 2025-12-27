@@ -15,6 +15,8 @@ Maintenance Teams and their skill descriptions:
 - Electricians: Electrical wiring, power supply, control panels, short circuits, sparks, sensors, voltage issues.
 - IT Support: Software issues, computers, printers, networks, servers, operating systems.
 - HVAC Specialists: Heating, ventilation, air conditioning, refrigeration, climate control, thermostats.
+- Housekeeping & Sanitation: Cleaning equipment, waste management systems, sanitation, hygiene, disposal units.
+- Security Systems: CCTV, access control, alarm systems, surveillance, security panels, badge readers.
 
 Instructions:
 
