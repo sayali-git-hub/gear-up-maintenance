@@ -3,13 +3,13 @@ import { useData } from '@/contexts/DataContext';
 import { InsightCard } from '@/components/dashboard/InsightCard';
 import { RequestsTable } from '@/components/dashboard/RequestsTable';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { 
   AlertTriangle, 
   Users, 
   ClipboardList,
-  Search,
+  LayoutDashboard,
 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -46,42 +46,24 @@ const Dashboard = () => {
     scrap: requests.filter(r => r.status === 'scrap').length,
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/kanban?search=${encodeURIComponent(searchQuery.trim())}`);
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    if (value.trim()) {
+      navigate(`/kanban?search=${encodeURIComponent(value.trim())}`);
     }
   };
 
   return (
     <MainLayout>
       <div className="p-6 lg:p-8 space-y-6">
-        {/* Header with Search */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row lg:items-center justify-between gap-4"
-        >
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
-              <span className="gradient-text">Dashboard</span>
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Maintenance operations overview
-            </p>
-          </div>
-          <form onSubmit={handleSearch} className="w-full lg:w-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search maintenance requests..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full lg:w-80"
-              />
-            </div>
-          </form>
-        </motion.div>
+        <PageHeader
+          icon={LayoutDashboard}
+          title="Dashboard"
+          description="Maintenance operations overview"
+          searchValue={searchQuery}
+          onSearchChange={handleSearch}
+          searchPlaceholder="Search maintenance requests..."
+        />
 
         {/* Insight Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

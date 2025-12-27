@@ -1,13 +1,12 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { TeamCard } from '@/components/teams/TeamCard';
 import { useData } from '@/contexts/DataContext';
 import { motion } from 'framer-motion';
-import { Users, Plus, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Users } from 'lucide-react';
 import { useState } from 'react';
 import { AddTeamDialog } from '@/components/dialogs/AddTeamDialog';
-import { ViewModeToggle, ViewMode } from '@/components/ui/ViewModeToggle';
+import { ViewMode } from '@/components/ui/ViewModeToggle';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -29,47 +28,19 @@ const TeamsPage = () => {
   return (
     <MainLayout>
       <div className="p-8 space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Maintenance Teams</h1>
-              <p className="text-sm text-muted-foreground">
-                Manage your technicians and team assignments
-              </p>
-            </div>
-          </div>
-          <Button className="gap-2" onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4" />
-            Add Team
-          </Button>
-        </motion.div>
-
-        {/* Search and View Toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
-        >
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search teams..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-        </motion.div>
+        <PageHeader
+          icon={Users}
+          title="Maintenance Teams"
+          description="Manage your technicians and team assignments"
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search teams..."
+          showViewToggle
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          addButtonLabel="Add Team"
+          onAddClick={() => setShowAddDialog(true)}
+        />
 
         {/* Teams Grid or List */}
         {viewMode === 'grid' ? (
