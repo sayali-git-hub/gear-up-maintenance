@@ -12,10 +12,10 @@ import {
   Users, 
   ClipboardList,
   LayoutDashboard,
+  ArrowRight,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   const { requests, equipment, teams } = useData();
@@ -43,7 +43,7 @@ const Dashboard = () => {
     ? Math.round((assignedTechnicians / totalTechnicians) * 100) 
     : 0;
 
-  // Request status counts for workflow visibility
+  // Request status counts
   const statusCounts = {
     new: requests.filter(r => r.status === 'new').length,
     in_progress: requests.filter(r => r.status === 'in_progress').length,
@@ -51,13 +51,13 @@ const Dashboard = () => {
     scrap: requests.filter(r => r.status === 'scrap').length,
   };
 
-  // Filter requests based on search
+  // Filter requests
   const filteredRequests = requests.filter(r => 
     r.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort requests: non-completed first, then by date
+  // Sort requests
   const sortedRequests = [...filteredRequests]
     .sort((a, b) => {
       const aComplete = a.status === 'repaired' || a.status === 'scrap';
@@ -80,107 +80,108 @@ const Dashboard = () => {
           description="Maintenance operations overview"
           searchValue={searchQuery}
           onSearchChange={handleSearch}
-          searchPlaceholder="Search maintenance requests..."
+          searchPlaceholder="Search requests..."
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          addButtonLabel="Add"
+          addButtonLabel="New Request"
           onAddClick={() => setShowCreateDialog(true)}
         />
 
-        {/* Insight Cards */}
+        {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <InsightCard
             title="Critical Equipment"
             value={criticalEquipment}
-            subtitle={`${equipment.length} total equipment`}
+            subtitle={`${equipment.length} total assets tracked`}
             icon={AlertTriangle}
-            variant="critical"
+            variant={criticalEquipment > 0 ? 'critical' : 'neutral'}
             delay={0}
             onClick={() => navigate('/equipment?filter=critical')}
           />
           <InsightCard
-            title="Technician Load"
-            value={`${utilizationPercent}% Utilized`}
-            subtitle={utilizationPercent > 80 ? 'Assign Carefully' : `${totalTechnicians - assignedTechnicians} available`}
+            title="Team Utilization"
+            value={`${utilizationPercent}%`}
+            subtitle={utilizationPercent > 80 
+              ? 'High workload - consider rebalancing' 
+              : `${totalTechnicians - assignedTechnicians} technicians available`
+            }
             icon={Users}
-            variant="info"
-            delay={0.1}
+            variant={utilizationPercent > 80 ? 'warning' : 'info'}
+            delay={0.05}
             onClick={() => navigate('/teams')}
           />
           <InsightCard
             title="Open Requests"
             value={openRequests}
-            subtitle={overdueRequests > 0 ? `${overdueRequests} overdue` : 'All on schedule'}
+            subtitle={overdueRequests > 0 
+              ? `${overdueRequests} overdue - attention needed` 
+              : 'All requests on schedule'
+            }
             icon={ClipboardList}
-            variant="success"
-            delay={0.2}
+            variant={overdueRequests > 0 ? 'warning' : 'success'}
+            delay={0.1}
             onClick={() => navigate('/kanban?filter=open')}
           />
         </div>
 
         {/* Workflow Status */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.25 }}
-          className="rounded-xl border bg-card p-4"
+          transition={{ duration: 0.3, delay: 0.15 }}
+          className="rounded-xl border border-border bg-card p-5"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
         >
-          <h3 className="font-semibold mb-4">Request Workflow Status</h3>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-foreground">Request Pipeline</h3>
             <button 
-              onClick={() => navigate('/kanban?stage=new')}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition-colors"
+              onClick={() => navigate('/kanban')}
+              className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
             >
-              <div className="w-3 h-3 rounded-full bg-blue-500" />
-              <span className="font-medium">New</span>
-              <Badge variant="secondary">{statusCounts.new}</Badge>
+              View all <ArrowRight className="w-3 h-3" />
             </button>
-            <button 
-              onClick={() => navigate('/kanban?stage=in_progress')}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
-            >
-              <div className="w-3 h-3 rounded-full bg-amber-500" />
-              <span className="font-medium">In Progress</span>
-              <Badge variant="secondary">{statusCounts.in_progress}</Badge>
-            </button>
-            <button 
-              onClick={() => navigate('/kanban?stage=repaired')}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors"
-            >
-              <div className="w-3 h-3 rounded-full bg-emerald-500" />
-              <span className="font-medium">Repaired</span>
-              <Badge variant="secondary">{statusCounts.repaired}</Badge>
-            </button>
-            <button 
-              onClick={() => navigate('/kanban?stage=scrap')}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors"
-            >
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="font-medium">Scrap</span>
-              <Badge variant="secondary">{statusCounts.scrap}</Badge>
-            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { key: 'new', label: 'New', count: statusCounts.new, color: 'bg-primary' },
+              { key: 'in_progress', label: 'In Progress', count: statusCounts.in_progress, color: 'bg-amber-500' },
+              { key: 'repaired', label: 'Completed', count: statusCounts.repaired, color: 'bg-emerald-500' },
+              { key: 'scrap', label: 'Scrapped', count: statusCounts.scrap, color: 'bg-red-500' },
+            ].map((status) => (
+              <button 
+                key={status.key}
+                onClick={() => navigate(`/kanban?stage=${status.key}`)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors duration-100"
+              >
+                <div className={`w-2 h-2 rounded-full ${status.color}`} />
+                <span className="text-sm text-foreground">{status.label}</span>
+                <span className="text-sm font-medium text-muted-foreground">{status.count}</span>
+              </button>
+            ))}
           </div>
         </motion.div>
 
-        {/* Requests - Grid or Table View */}
-        {viewMode === 'grid' ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-lg">Recent Maintenance Requests</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {sortedRequests.map((request, index) => (
-                <DashboardCard key={request.id} request={request} index={index} />
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <RequestsTable />
-        )}
+        {/* Requests Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          {viewMode === 'grid' ? (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-foreground">Recent Requests</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {sortedRequests.map((request, index) => (
+                  <DashboardCard key={request.id} request={request} index={index} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <RequestsTable />
+          )}
+        </motion.div>
       </div>
 
       <CreateRequestDialog 

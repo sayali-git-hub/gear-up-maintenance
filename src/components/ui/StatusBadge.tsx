@@ -7,10 +7,22 @@ interface StatusBadgeProps {
 }
 
 const statusConfig: Record<MaintenanceStatus, { label: string; className: string }> = {
-  new: { label: 'New', className: 'bg-status-new/15 text-status-new border-status-new/30' },
-  in_progress: { label: 'In Progress', className: 'bg-status-progress/15 text-status-progress border-status-progress/30' },
-  repaired: { label: 'Repaired', className: 'bg-status-repaired/15 text-status-repaired border-status-repaired/30' },
-  scrap: { label: 'Scrap', className: 'bg-status-scrap/15 text-status-scrap border-status-scrap/30' },
+  new: { 
+    label: 'New', 
+    className: 'bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary' 
+  },
+  in_progress: { 
+    label: 'In Progress', 
+    className: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400' 
+  },
+  repaired: { 
+    label: 'Completed', 
+    className: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400' 
+  },
+  scrap: { 
+    label: 'Scrapped', 
+    className: 'bg-red-500/10 text-red-600 dark:bg-red-500/15 dark:text-red-400' 
+  },
 };
 
 export const StatusBadge = ({ status, size = 'md' }: StatusBadgeProps) => {
@@ -19,9 +31,9 @@ export const StatusBadge = ({ status, size = 'md' }: StatusBadgeProps) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border font-medium',
+        'status-pill',
         config.className,
-        size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm'
+        size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-0.5 text-xs'
       )}
     >
       {config.label}

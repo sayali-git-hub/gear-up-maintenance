@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Calendar, Clock, Settings2, Users } from 'lucide-react';
+import { Calendar, Settings2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -24,42 +24,43 @@ export const DashboardCard = ({ request, index }: DashboardCardProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.03, duration: 0.25, ease: 'easeOut' }}
       onClick={() => navigate(`/requests/${request.id}`)}
-      className="bg-card border border-border rounded-xl p-4 space-y-3 cursor-pointer hover:border-primary/30 hover:shadow-md transition-all"
+      className="bg-card border border-border rounded-xl p-4 space-y-3 cursor-pointer hover-lift"
+      style={{ boxShadow: 'var(--shadow-sm)' }}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <div className="flex-1">
-          <Badge variant="outline" className="font-mono text-xs mb-2">
+        <div className="flex-1 min-w-0">
+          <Badge variant="outline" className="font-mono text-[10px] mb-2">
             {request.id.toUpperCase()}
           </Badge>
-          <h3 className="font-medium line-clamp-2">{request.subject}</h3>
+          <h3 className="font-medium text-sm line-clamp-2 text-foreground">{request.subject}</h3>
         </div>
         <PriorityBadge priority={request.priority} />
       </div>
 
       {/* Equipment */}
       {equipment && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Settings2 className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
           <span className="truncate">{equipment.name}</span>
         </div>
       )}
 
       {/* Technician */}
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-xs">
         {technician ? (
           <>
             <div 
-              className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white"
+              className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium text-white"
               style={{ backgroundColor: team?.color || '#6366f1' }}
             >
               {technician.name.split(' ').map(n => n[0]).join('')}
             </div>
-            <span>{technician.name}</span>
+            <span className="text-foreground">{technician.name}</span>
           </>
         ) : (
           <span className="text-muted-foreground">Unassigned</span>
@@ -68,8 +69,8 @@ export const DashboardCard = ({ request, index }: DashboardCardProps) => {
 
       {/* Date & Status */}
       <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <Calendar className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <Calendar className="w-3 h-3" strokeWidth={1.75} />
           {format(parseISO(request.scheduledDate), 'MMM d, yyyy')}
         </div>
         <StatusBadge status={request.status} size="sm" />
