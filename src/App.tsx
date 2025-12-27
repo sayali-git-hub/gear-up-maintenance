@@ -14,6 +14,8 @@ import CalendarPage from "./pages/CalendarPage";
 import EquipmentPage from "./pages/EquipmentPage";
 import EquipmentDetailPage from "./pages/EquipmentDetailPage";
 import TeamsPage from "./pages/TeamsPage";
+import TeamDetailPage from "./pages/TeamDetailPage";
+import RequestDetailPage from "./pages/RequestDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
                 <Route path="/equipment" element={<ProtectedRoute><EquipmentPage /></ProtectedRoute>} />
                 <Route path="/equipment/:id" element={<ProtectedRoute><EquipmentDetailPage /></ProtectedRoute>} />
                 <Route path="/teams" element={<ProtectedRoute><TeamsPage /></ProtectedRoute>} />
+                <Route path="/teams/:id" element={<ProtectedRoute><TeamDetailPage /></ProtectedRoute>} />
+                <Route path="/requests/:id" element={<ProtectedRoute><RequestDetailPage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
