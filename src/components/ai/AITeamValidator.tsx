@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { MaintenanceRequest, getEquipmentById, getTeamById, maintenanceTeams } from '@/lib/data';
-import { Bot, CheckCircle, AlertTriangle, Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { MaintenanceRequest, getEquipmentById, getTeamById } from '@/lib/data';
+import { Bot, CheckCircle, AlertTriangle, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useData } from '@/contexts/DataContext';
 
 interface AIValidationResult {
   is_correct_team: boolean;
@@ -21,11 +20,8 @@ interface AITeamValidatorProps {
 
 export const AITeamValidator = ({ request }: AITeamValidatorProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isReassigning, setIsReassigning] = useState(false);
   const [result, setResult] = useState<AIValidationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
-  const { updateEquipment, teams } = useData();
 
   const equipment = getEquipmentById(request.equipmentId);
   const team = equipment ? getTeamById(equipment.maintenanceTeamId) : null;
@@ -67,30 +63,6 @@ export const AITeamValidator = ({ request }: AITeamValidatorProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleReassignTeam = () => {
-    if (!result || !equipment) return;
-    
-    // Find the recommended team by name
-    const newTeam = teams.find(t => t.name === result.recommended_team);
-    
-    if (!newTeam) {
-      toast.error(`Team "${result.recommended_team}" not found`);
-      return;
-    }
-
-    setIsReassigning(true);
-    
-    // Update the equipment's maintenance team
-    updateEquipment(equipment.id, { 
-      maintenanceTeamId: newTeam.id,
-      defaultTechnicianId: newTeam.technicians[0]?.id || ''
-    });
-    
-    toast.success(`Team reassigned to ${result.recommended_team}`);
-    setResult(null);
-    setIsReassigning(false);
   };
 
   const getConfidenceColor = (confidence: string) => {
@@ -182,29 +154,6 @@ export const AITeamValidator = ({ request }: AITeamValidatorProps) => {
                 <p className="text-sm text-muted-foreground">
                   {result.reason}
                 </p>
-
-                {!result.is_correct_team && (
-                  <div className="pt-2">
-                    <Button
-                      size="sm"
-                      onClick={handleReassignTeam}
-                      disabled={isReassigning}
-                      className="gap-2"
-                    >
-                      {isReassigning ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Reassigning...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw className="w-4 h-4" />
-                          Reassign to {result.recommended_team}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           </motion.div>

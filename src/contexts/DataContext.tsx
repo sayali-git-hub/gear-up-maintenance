@@ -27,7 +27,6 @@ interface DataContextType {
   updateRequest: (requestId: string, updates: Partial<MaintenanceRequest>) => void;
   addRequest: (request: Omit<MaintenanceRequest, 'id' | 'createdAt'>) => void;
   updateEquipmentStatus: (equipmentId: string, status: Equipment['status']) => void;
-  updateEquipment: (equipmentId: string, updates: Partial<Equipment>) => void;
   addEquipment: (equipment: Omit<Equipment, 'id'>) => void;
   addTeam: (team: Omit<MaintenanceTeam, 'id'> & { technicians: Omit<Technician, 'teamId'>[] }) => void;
   addTechnicianToTeam: (teamId: string, technician: { name: string; email?: string }) => void;
@@ -86,12 +85,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateEquipmentStatus = (equipmentId: string, status: Equipment['status']) => {
     setEquipment(prev =>
       prev.map(eq => (eq.id === equipmentId ? { ...eq, status } : eq))
-    );
-  };
-
-  const updateEquipment = (equipmentId: string, updates: Partial<Equipment>) => {
-    setEquipment(prev =>
-      prev.map(eq => (eq.id === equipmentId ? { ...eq, ...updates } : eq))
     );
   };
 
@@ -155,7 +148,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateRequest,
         addRequest,
         updateEquipmentStatus,
-        updateEquipment,
         addEquipment,
         addTeam,
         addTechnicianToTeam,
