@@ -2,9 +2,9 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { motion } from 'framer-motion';
-import { Kanban } from 'lucide-react';
+import { Kanban, ClipboardList } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CreateRequestDialog } from '@/components/dialogs/CreateRequestDialog';
 import { FilterDialog, KanbanFilters } from '@/components/dialogs/FilterDialog';
 import { ViewMode } from '@/components/ui/ViewModeToggle';
@@ -13,9 +13,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { getTeamById, getTechnicianById } from '@/lib/data';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const KanbanPage = () => {
   const { requests, equipment } = useData();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showFilterDialog, setShowFilterDialog] = useState(false);
