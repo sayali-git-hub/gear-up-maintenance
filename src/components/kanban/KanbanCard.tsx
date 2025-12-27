@@ -16,7 +16,7 @@ export const KanbanCard = ({ request, isDragging }: KanbanCardProps) => {
   const technician = request.assignedTechnicianId 
     ? getTechnicianById(request.assignedTechnicianId) 
     : null;
-  const team = equipment ? getTeamById(equipment.maintenanceTeamId) : null;
+  const team = request.teamId ? getTeamById(request.teamId) : null;
   
   const isOverdue = request.status !== 'repaired' && 
     request.status !== 'scrap' && 

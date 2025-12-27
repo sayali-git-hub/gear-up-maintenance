@@ -12,6 +12,7 @@ import { useData } from '@/contexts/DataContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { getTeamById, getTechnicianById } from '@/lib/data';
 
 const KanbanPage = () => {
   const { requests, equipment } = useData();
@@ -122,6 +123,8 @@ const KanbanPage = () => {
                   <TableRow>
                     <TableHead>Subject</TableHead>
                     <TableHead>Equipment</TableHead>
+                    <TableHead>Team</TableHead>
+                    <TableHead>Technician</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Priority</TableHead>
                     <TableHead>Status</TableHead>
@@ -129,20 +132,48 @@ const KanbanPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRequests.map((request) => (
-                    <TableRow key={request.id} className="hover:bg-muted/50">
-                      <TableCell className="font-medium">{request.subject}</TableCell>
-                      <TableCell>{getEquipmentName(request.equipmentId)}</TableCell>
-                      <TableCell className="capitalize">{request.type}</TableCell>
-                      <TableCell>
-                        <PriorityBadge priority={request.priority} />
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={request.status} />
-                      </TableCell>
-                      <TableCell>{request.scheduledDate}</TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredRequests.map((request) => {
+                    const team = request.teamId ? getTeamById(request.teamId) : null;
+                    const technician = request.assignedTechnicianId 
+                      ? getTechnicianById(request.assignedTechnicianId) 
+                      : null;
+                    return (
+                      <TableRow key={request.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{request.subject}</TableCell>
+                        <TableCell>{getEquipmentName(request.equipmentId)}</TableCell>
+                        <TableCell>
+                          {team ? (
+                            <span 
+                              className="text-xs px-2 py-0.5 rounded-full font-medium"
+                              style={{ 
+                                backgroundColor: `${team.color}15`, 
+                                color: team.color 
+                              }}
+                            >
+                              {team.name}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {technician ? (
+                            <span className="text-sm">{technician.name}</span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm italic">Unassigned</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="capitalize">{request.type}</TableCell>
+                        <TableCell>
+                          <PriorityBadge priority={request.priority} />
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge status={request.status} />
+                        </TableCell>
+                        <TableCell>{request.scheduledDate}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
               {filteredRequests.length === 0 && (

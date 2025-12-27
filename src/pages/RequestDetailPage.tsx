@@ -54,7 +54,7 @@ const RequestDetailPage = () => {
   }
 
   const equipment = getEquipmentById(request.equipmentId);
-  const team = equipment ? getTeamById(equipment.maintenanceTeamId) : null;
+  const team = request.teamId ? getTeamById(request.teamId) : null;
   const technician = request.assignedTechnicianId 
     ? getTechnicianById(request.assignedTechnicianId) 
     : null;
