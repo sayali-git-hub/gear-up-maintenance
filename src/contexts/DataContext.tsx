@@ -3,28 +3,50 @@ import {
   MaintenanceRequest,
   Equipment,
   MaintenanceTeam,
+  Technician,
   maintenanceRequests as initialRequests,
   equipment as initialEquipment,
   maintenanceTeams as initialTeams,
   MaintenanceStatus,
 } from '@/lib/data';
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  role: string;
+  teamId: string;
+  phone: string;
+}
+
 interface DataContextType {
   requests: MaintenanceRequest[];
   equipment: Equipment[];
   teams: MaintenanceTeam[];
+  userProfile: UserProfile;
   updateRequestStatus: (requestId: string, newStatus: MaintenanceStatus) => void;
   updateRequest: (requestId: string, updates: Partial<MaintenanceRequest>) => void;
   addRequest: (request: Omit<MaintenanceRequest, 'id' | 'createdAt'>) => void;
   updateEquipmentStatus: (equipmentId: string, status: Equipment['status']) => void;
+  addEquipment: (equipment: Omit<Equipment, 'id'>) => void;
+  addTeam: (team: Omit<MaintenanceTeam, 'id'> & { technicians: Omit<Technician, 'teamId'>[] }) => void;
+  updateUserProfile: (profile: Partial<UserProfile>) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+const initialUserProfile: UserProfile = {
+  name: 'Admin User',
+  email: 'admin@gearguard.io',
+  role: 'admin',
+  teamId: '',
+  phone: '+1 234 567 8900',
+};
+
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [requests, setRequests] = useState<MaintenanceRequest[]>(initialRequests);
   const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
-  const [teams] = useState<MaintenanceTeam[]>(initialTeams);
+  const [teams, setTeams] = useState<MaintenanceTeam[]>(initialTeams);
+  const [userProfile, setUserProfile] = useState<UserProfile>(initialUserProfile);
 
   const updateRequestStatus = (requestId: string, newStatus: MaintenanceStatus) => {
     setRequests(prev =>
@@ -65,16 +87,48 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
   };
 
+  const addEquipment = (newEquipment: Omit<Equipment, 'id'>) => {
+    const equipmentEntry: Equipment = {
+      ...newEquipment,
+      id: `eq-${Date.now()}`,
+    };
+    setEquipment(prev => [...prev, equipmentEntry]);
+  };
+
+  const addTeam = (newTeam: Omit<MaintenanceTeam, 'id'> & { technicians: Omit<Technician, 'teamId'>[] }) => {
+    const teamId = `team-${Date.now()}`;
+    const teamEntry: MaintenanceTeam = {
+      id: teamId,
+      name: newTeam.name,
+      description: newTeam.description,
+      color: newTeam.color,
+      technicians: newTeam.technicians.map((tech, index) => ({
+        ...tech,
+        id: `tech-${Date.now()}-${index}`,
+        teamId: teamId,
+      })),
+    };
+    setTeams(prev => [...prev, teamEntry]);
+  };
+
+  const updateUserProfile = (profile: Partial<UserProfile>) => {
+    setUserProfile(prev => ({ ...prev, ...profile }));
+  };
+
   return (
     <DataContext.Provider
       value={{
         requests,
         equipment,
         teams,
+        userProfile,
         updateRequestStatus,
         updateRequest,
         addRequest,
         updateEquipmentStatus,
+        addEquipment,
+        addTeam,
+        updateUserProfile,
       }}
     >
       {children}
