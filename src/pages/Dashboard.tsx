@@ -61,7 +61,7 @@ const Dashboard = () => {
             onClick={() => navigate('/kanban')} 
             className="gap-2 glow-primary"
           >
-            Open Kanban Board
+            Open Requests
             <ArrowRight className="w-4 h-4" />
           </Button>
         </motion.div>
