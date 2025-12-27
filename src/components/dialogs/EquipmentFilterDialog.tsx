@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/select';
 import { useData } from '@/contexts/DataContext';
 
+const ALL_VALUE = '__all__';
+
 export interface EquipmentFilters {
   department: string;
   teamId: string;
@@ -43,6 +45,9 @@ export const EquipmentFilterDialog = ({
   // Get unique values from equipment data
   const departments = [...new Set(equipment.map((eq) => eq.department))];
   const locations = [...new Set(equipment.map((eq) => eq.location))];
+
+  const toSelectValue = (val: string) => (val === '' ? ALL_VALUE : val);
+  const fromSelectValue = (val: string) => (val === ALL_VALUE ? '' : val);
 
   const handleApply = () => {
     onApplyFilters(localFilters);
@@ -73,16 +78,16 @@ export const EquipmentFilterDialog = ({
           <div className="space-y-2">
             <Label>Department</Label>
             <Select
-              value={localFilters.department}
+              value={toSelectValue(localFilters.department)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, department: v })
+                setLocalFilters({ ...localFilters, department: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All departments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All departments</SelectItem>
+                <SelectItem value={ALL_VALUE}>All departments</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept} value={dept}>
                     {dept}
@@ -95,16 +100,16 @@ export const EquipmentFilterDialog = ({
           <div className="space-y-2">
             <Label>Assigned Team</Label>
             <Select
-              value={localFilters.teamId}
+              value={toSelectValue(localFilters.teamId)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, teamId: v })
+                setLocalFilters({ ...localFilters, teamId: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All teams" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All teams</SelectItem>
+                <SelectItem value={ALL_VALUE}>All teams</SelectItem>
                 {teams.map((team) => (
                   <SelectItem key={team.id} value={team.id}>
                     {team.name}
@@ -117,16 +122,16 @@ export const EquipmentFilterDialog = ({
           <div className="space-y-2">
             <Label>Location</Label>
             <Select
-              value={localFilters.location}
+              value={toSelectValue(localFilters.location)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, location: v })
+                setLocalFilters({ ...localFilters, location: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All locations" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All locations</SelectItem>
+                <SelectItem value={ALL_VALUE}>All locations</SelectItem>
                 {locations.map((loc) => (
                   <SelectItem key={loc} value={loc}>
                     {loc}
@@ -139,16 +144,16 @@ export const EquipmentFilterDialog = ({
           <div className="space-y-2">
             <Label>Ownership Type</Label>
             <Select
-              value={localFilters.ownerType}
+              value={toSelectValue(localFilters.ownerType)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, ownerType: v })
+                setLocalFilters({ ...localFilters, ownerType: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All ownership types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All ownership types</SelectItem>
+                <SelectItem value={ALL_VALUE}>All ownership types</SelectItem>
                 <SelectItem value="team">Team Owned</SelectItem>
                 <SelectItem value="department">Department Owned</SelectItem>
               </SelectContent>
@@ -158,16 +163,16 @@ export const EquipmentFilterDialog = ({
           <div className="space-y-2">
             <Label>Status</Label>
             <Select
-              value={localFilters.status}
+              value={toSelectValue(localFilters.status)}
               onValueChange={(v) =>
-                setLocalFilters({ ...localFilters, status: v })
+                setLocalFilters({ ...localFilters, status: fromSelectValue(v) })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value={ALL_VALUE}>All statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="maintenance">Under Maintenance</SelectItem>
                 <SelectItem value="scrapped">Scrapped</SelectItem>
