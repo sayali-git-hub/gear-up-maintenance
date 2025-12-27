@@ -4,6 +4,7 @@ import { Users, Wrench, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AddTechnicianDialog } from '@/components/dialogs/AddTechnicianDialog';
 
 interface TeamCardProps {
@@ -13,6 +14,7 @@ interface TeamCardProps {
 
 export const TeamCard = ({ team, delay = 0 }: TeamCardProps) => {
   const { equipment, requests } = useData();
+  const navigate = useNavigate();
   const [showAddTechDialog, setShowAddTechDialog] = useState(false);
   
   const teamEquipment = equipment.filter(e => e.maintenanceTeamId === team.id);
@@ -22,13 +24,20 @@ export const TeamCard = ({ team, delay = 0 }: TeamCardProps) => {
   });
   const activeRequests = teamRequests.filter(r => r.status === 'in_progress').length;
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on the add technician button
+    if ((e.target as HTMLElement).closest('button')) return;
+    navigate(`/teams/${team.id}`);
+  };
+
   return (
     <>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay }}
-        className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-200 hover:border-primary/30"
+        onClick={handleCardClick}
+        className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-200 hover:border-primary/30 cursor-pointer"
       >
         <div className="flex items-start gap-4 mb-4">
           <div 

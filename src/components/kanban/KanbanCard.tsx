@@ -3,6 +3,7 @@ import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { cn } from '@/lib/utils';
 import { Clock, Wrench, User, AlertTriangle, CheckCircle } from 'lucide-react';
 import { format, isPast, parseISO } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface KanbanCardProps {
   request: MaintenanceRequest;
@@ -10,6 +11,7 @@ interface KanbanCardProps {
 }
 
 export const KanbanCard = ({ request, isDragging }: KanbanCardProps) => {
+  const navigate = useNavigate();
   const equipment = getEquipmentById(request.equipmentId);
   const technician = request.assignedTechnicianId 
     ? getTechnicianById(request.assignedTechnicianId) 
@@ -20,13 +22,21 @@ export const KanbanCard = ({ request, isDragging }: KanbanCardProps) => {
     request.status !== 'scrap' && 
     isPast(parseISO(request.scheduledDate));
 
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't navigate if dragging
+    if (isDragging) return;
+    e.stopPropagation();
+    navigate(`/requests/${request.id}`);
+  };
+
   return (
     <div
+      onClick={handleClick}
       className={cn(
         'bg-card border border-border rounded-xl p-4 cursor-grab transition-all duration-200',
         isDragging && 'shadow-xl rotate-2 scale-105',
         isOverdue && 'border-l-4 border-l-red-500',
-        !isDragging && 'hover:shadow-md hover:border-primary/30'
+        !isDragging && 'hover:shadow-md hover:border-primary/30 cursor-pointer'
       )}
     >
       <div className="flex items-start justify-between gap-2 mb-3">
