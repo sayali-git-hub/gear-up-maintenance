@@ -10,13 +10,17 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 import { ProfileDialog } from '@/components/dialogs/ProfileDialog';
+import { ThemeToggle, ThemeToggleCompact } from '@/components/ui/ThemeToggle';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -29,6 +33,7 @@ const navItems = [
 export const AppSidebar = () => {
   const location = useLocation();
   const { userProfile } = useData();
+  const { logout } = useAuth();
   const { collapsed, setCollapsed } = useSidebarContext();
   const [showProfileDialog, setShowProfileDialog] = useState(false);
 
@@ -116,8 +121,17 @@ export const AppSidebar = () => {
           )}
         </button>
 
-        {/* Footer - Profile */}
-        <div className="p-4 border-t border-sidebar-border">
+        {/* Theme Toggle */}
+        <div className="px-3 py-2 border-t border-sidebar-border">
+          {collapsed ? (
+            <ThemeToggleCompact />
+          ) : (
+            <ThemeToggle />
+          )}
+        </div>
+
+        {/* Footer - Profile & Logout */}
+        <div className="p-4 border-t border-sidebar-border space-y-2">
           <button
             onClick={() => setShowProfileDialog(true)}
             className="w-full flex items-center gap-3 hover:bg-sidebar-accent rounded-lg p-1 -m-1 transition-colors"
@@ -143,6 +157,27 @@ export const AppSidebar = () => {
               )}
             </AnimatePresence>
           </button>
+          
+          {/* Logout button */}
+          {collapsed ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={logout}
+              className="w-10 h-10 text-sidebar-foreground hover:bg-sidebar-accent hover:text-destructive"
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={logout}
+              className="w-full justify-start gap-3 px-3 py-2.5 text-sidebar-foreground hover:bg-sidebar-accent hover:text-destructive"
+            >
+              <LogOut className="w-5 h-5 flex-shrink-0" />
+              <span className="font-medium text-sm">Sign Out</span>
+            </Button>
+          )}
         </div>
       </motion.aside>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -6,14 +6,45 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings2, Mail, Lock, User } from 'lucide-react';
+import { Shield, Mail, Lock, User, AlertCircle, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const AuthPage = () => {
   const navigate = useNavigate();
-  const { login, signup } = useAuth();
+  const { login, signup, isAuthenticated, registeredUsers } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('signup');
+  const [error, setError] = useState<string | null>(null);
+
+  // Theme state
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved === 'dark';
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -27,14 +58,15 @@ const AuthPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    const success = await login(loginEmail, loginPassword);
+    const result = await login(loginEmail, loginPassword);
     
-    if (success) {
+    if (result.success) {
       toast.success('Welcome back!');
       navigate('/');
     } else {
-      toast.error('Invalid credentials. Please try again.');
+      setError(result.error || 'Login failed. Please try again.');
     }
     
     setIsLoading(false);
@@ -43,21 +75,34 @@ const AuthPage = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    const success = await signup(signupEmail, signupPassword, signupName);
+    const result = await signup(signupEmail, signupPassword, signupName);
     
-    if (success) {
+    if (result.success) {
       toast.success('Account created successfully!');
       navigate('/');
     } else {
-      toast.error('Failed to create account. Please try again.');
+      setError(result.error || 'Failed to create account. Please try again.');
     }
     
     setIsLoading(false);
   };
 
+  const hasRegisteredUsers = registeredUsers.length > 0;
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      {/* Theme toggle in corner */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsDark(!isDark)}
+        className="absolute top-4 right-4"
+      >
+        {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </Button>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -65,8 +110,8 @@ const AuthPage = () => {
       >
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="p-3 rounded-xl bg-primary">
-            <Settings2 className="w-8 h-8 text-primary-foreground" />
+          <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-[hsl(35,95%,60%)]">
+            <Shield className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold">
             <span className="gradient-text">GearGuard</span>
@@ -77,54 +122,27 @@ const AuthPage = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Welcome</CardTitle>
             <CardDescription>
-              Sign in to manage your maintenance operations
+              {activeTab === 'signup' 
+                ? 'Create an account to get started'
+                : 'Sign in to your account'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
-                        className="pl-10"
-                        required
-                        minLength={4}
-                      />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Signing in...' : 'Sign In'}
-                  </Button>
-                </form>
-              </TabsContent>
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setError(null); }} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="login" disabled={!hasRegisteredUsers}>
+                  Login
+                </TabsTrigger>
+              </TabsList>
 
               <TabsContent value="signup">
                 <form onSubmit={handleSignup} className="space-y-4">
@@ -173,17 +191,91 @@ const AuthPage = () => {
                         minLength={4}
                       />
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Password must be at least 4 characters
+                    </p>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Creating account...' : 'Create Account'}
                   </Button>
                 </form>
+
+                {hasRegisteredUsers && (
+                  <p className="text-center text-sm text-muted-foreground mt-4">
+                    Already have an account?{' '}
+                    <button 
+                      type="button"
+                      onClick={() => setActiveTab('login')}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Sign in
+                    </button>
+                  </p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="login">
+                {!hasRegisteredUsers ? (
+                  <div className="text-center py-8">
+                    <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">
+                      No accounts registered yet. Please sign up first.
+                    </p>
+                    <Button onClick={() => setActiveTab('signup')}>
+                      Create Account
+                    </Button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="login-email"
+                          type="email"
+                          placeholder="you@example.com"
+                          value={loginEmail}
+                          onChange={(e) => setLoginEmail(e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="login-password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="login-password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          className="pl-10"
+                          required
+                          minLength={4}
+                        />
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? 'Signing in...' : 'Sign In'}
+                    </Button>
+                  </form>
+                )}
+
+                <p className="text-center text-sm text-muted-foreground mt-4">
+                  Don't have an account?{' '}
+                  <button 
+                    type="button"
+                    onClick={() => setActiveTab('signup')}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Sign up
+                  </button>
+                </p>
               </TabsContent>
             </Tabs>
-
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              Demo: Use any email and password (min 4 chars)
-            </p>
           </CardContent>
         </Card>
       </motion.div>
