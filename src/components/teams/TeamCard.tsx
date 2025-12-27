@@ -1,5 +1,6 @@
 import { MaintenanceTeam } from '@/lib/data';
 import { useData } from '@/contexts/DataContext';
+import { useNavigate } from 'react-router-dom';
 import { Users, Wrench, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ interface TeamCardProps {
 
 export const TeamCard = ({ team, delay = 0 }: TeamCardProps) => {
   const { equipment, requests } = useData();
+  const navigate = useNavigate();
   const [showAddTechDialog, setShowAddTechDialog] = useState(false);
   
   const teamEquipment = equipment.filter(e => e.maintenanceTeamId === team.id);
@@ -28,7 +30,8 @@ export const TeamCard = ({ team, delay = 0 }: TeamCardProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay }}
-        className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-200 hover:border-primary/30"
+        onClick={() => navigate(`/teams/${team.id}`)}
+        className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-200 hover:border-primary/30 cursor-pointer"
       >
         <div className="flex items-start gap-4 mb-4">
           <div 
