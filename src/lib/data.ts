@@ -89,6 +89,26 @@ export const maintenanceTeams: MaintenanceTeam[] = [
       { id: 'tech-7', name: 'David Brown', email: 'david@gearguard.io', avatar: '', teamId: 'team-4' },
     ],
   },
+  {
+    id: 'team-5',
+    name: 'Housekeeping & Sanitation',
+    description: 'Cleaning equipment and waste management systems',
+    color: '#EC4899',
+    technicians: [
+      { id: 'tech-8', name: 'Maria Garcia', email: 'maria@gearguard.io', avatar: '', teamId: 'team-5' },
+      { id: 'tech-9', name: 'James Lee', email: 'james@gearguard.io', avatar: '', teamId: 'team-5' },
+    ],
+  },
+  {
+    id: 'team-6',
+    name: 'Security Systems',
+    description: 'CCTV, access control, and alarm systems',
+    color: '#06B6D4',
+    technicians: [
+      { id: 'tech-10', name: 'Rachel Adams', email: 'rachel@gearguard.io', avatar: '', teamId: 'team-6' },
+      { id: 'tech-11', name: 'Kevin White', email: 'kevin@gearguard.io', avatar: '', teamId: 'team-6' },
+    ],
+  },
 ];
 
 export const equipment: Equipment[] = [
