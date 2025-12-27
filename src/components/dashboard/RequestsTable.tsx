@@ -1,4 +1,5 @@
 import { useData } from '@/contexts/DataContext';
+import { useNavigate } from 'react-router-dom';
 import { getEquipmentById, getTechnicianById, getTeamById } from '@/lib/data';
 import {
   Table,
@@ -28,6 +29,7 @@ const statusLabels: Record<string, string> = {
 
 export const RequestsTable = () => {
   const { requests, equipment, teams } = useData();
+  const navigate = useNavigate();
 
   // Get recent/active requests (non-completed first, then by date)
   const sortedRequests = [...requests]
@@ -55,6 +57,7 @@ export const RequestsTable = () => {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>ID</TableHead>
             <TableHead>Subject</TableHead>
             <TableHead>Equipment</TableHead>
             <TableHead>Technician</TableHead>
@@ -72,7 +75,14 @@ export const RequestsTable = () => {
             const team = eq ? getTeamById(eq.maintenanceTeamId) : null;
 
             return (
-              <TableRow key={request.id} className="hover:bg-muted/50">
+              <TableRow 
+                key={request.id} 
+                className="hover:bg-muted/50 cursor-pointer"
+                onClick={() => navigate(`/requests/${request.id}`)}
+              >
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  {request.id.toUpperCase()}
+                </TableCell>
                 <TableCell className="font-medium max-w-[200px] truncate">
                   {request.subject}
                 </TableCell>

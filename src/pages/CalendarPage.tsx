@@ -1,5 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
-import { MaintenanceCalendar } from '@/components/calendar/MaintenanceCalendar';
+import { FullCalendar } from '@/components/calendar/FullCalendar';
 import { motion } from 'framer-motion';
 import { Calendar as CalendarIcon } from 'lucide-react';
 
@@ -19,18 +19,18 @@ const CalendarPage = () => {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Calendar View</h1>
             <p className="text-sm text-muted-foreground">
-              Schedule and view preventive maintenance
+              Schedule and view maintenance tasks
             </p>
           </div>
         </motion.div>
 
-        {/* Calendar */}
+        {/* Full Calendar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <MaintenanceCalendar />
+          <FullCalendar />
         </motion.div>
       </div>
     </MainLayout>

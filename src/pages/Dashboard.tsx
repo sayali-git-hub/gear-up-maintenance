@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { InsightCard } from '@/components/dashboard/InsightCard';
 import { RequestsTable } from '@/components/dashboard/RequestsTable';
+import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ViewMode } from '@/components/ui/ViewModeToggle';
+import { CreateRequestDialog } from '@/components/dialogs/CreateRequestDialog';
 import { 
   AlertTriangle, 
   Users, 
@@ -18,6 +21,8 @@ const Dashboard = () => {
   const { requests, equipment, teams } = useData();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   // Calculate stats
   const criticalEquipment = equipment.filter(e => e.status === 'maintenance' || e.status === 'scrapped').length;
@@ -46,11 +51,24 @@ const Dashboard = () => {
     scrap: requests.filter(r => r.status === 'scrap').length,
   };
 
+  // Filter requests based on search
+  const filteredRequests = requests.filter(r => 
+    r.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Sort requests: non-completed first, then by date
+  const sortedRequests = [...filteredRequests]
+    .sort((a, b) => {
+      const aComplete = a.status === 'repaired' || a.status === 'scrap';
+      const bComplete = b.status === 'repaired' || b.status === 'scrap';
+      if (aComplete !== bComplete) return aComplete ? 1 : -1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    })
+    .slice(0, 12);
+
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    if (value.trim()) {
-      navigate(`/kanban?search=${encodeURIComponent(value.trim())}`);
-    }
   };
 
   return (
@@ -63,6 +81,10 @@ const Dashboard = () => {
           searchValue={searchQuery}
           onSearchChange={handleSearch}
           searchPlaceholder="Search maintenance requests..."
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          addButtonLabel="Add Request"
+          onAddClick={() => setShowCreateDialog(true)}
         />
 
         {/* Insight Cards */}
@@ -140,9 +162,31 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        {/* Requests Table */}
-        <RequestsTable />
+        {/* Requests - Grid or Table View */}
+        {viewMode === 'grid' ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-lg">Recent Maintenance Requests</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {sortedRequests.map((request, index) => (
+                <DashboardCard key={request.id} request={request} index={index} />
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <RequestsTable />
+        )}
       </div>
+
+      <CreateRequestDialog 
+        open={showCreateDialog} 
+        onOpenChange={setShowCreateDialog} 
+      />
     </MainLayout>
   );
 };
