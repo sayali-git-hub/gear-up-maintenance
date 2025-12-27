@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { getTeamById, getTechnicianById, MaintenanceType } from '@/lib/data';
 import {
@@ -28,18 +28,33 @@ import { toast } from 'sonner';
 interface CreateRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultDate?: Date;
+  defaultType?: MaintenanceType;
 }
 
-export const CreateRequestDialog = ({ open, onOpenChange }: CreateRequestDialogProps) => {
+export const CreateRequestDialog = ({ 
+  open, 
+  onOpenChange, 
+  defaultDate,
+  defaultType = 'corrective',
+}: CreateRequestDialogProps) => {
   const { equipment, addRequest } = useData();
   
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [equipmentId, setEquipmentId] = useState('');
-  const [type, setType] = useState<MaintenanceType>('corrective');
+  const [type, setType] = useState<MaintenanceType>(defaultType);
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [duration, setDuration] = useState('4');
-  const [scheduledDate, setScheduledDate] = useState<Date>();
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(defaultDate);
+
+  // Update state when dialog opens with new defaults
+  useEffect(() => {
+    if (open) {
+      if (defaultDate) setScheduledDate(defaultDate);
+      if (defaultType) setType(defaultType);
+    }
+  }, [open, defaultDate, defaultType]);
 
   const selectedEquipment = equipment.find(e => e.id === equipmentId);
   const team = selectedEquipment ? getTeamById(selectedEquipment.maintenanceTeamId) : null;

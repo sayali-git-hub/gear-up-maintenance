@@ -39,7 +39,7 @@ const EquipmentDetailPage = () => {
         <div className="p-8 text-center">
           <p className="text-muted-foreground">Equipment not found</p>
           <Button onClick={() => navigate('/equipment')} className="mt-4">
-            Back to Equipment
+            Back to Equipments
           </Button>
         </div>
       </MainLayout>
@@ -67,7 +67,7 @@ const EquipmentDetailPage = () => {
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Equipment
+            Back to Equipments
           </Button>
         </motion.div>
 
