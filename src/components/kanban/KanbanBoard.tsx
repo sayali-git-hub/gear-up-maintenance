@@ -5,10 +5,10 @@ import { MaintenanceStatus } from '@/lib/data';
 import { KanbanFilters } from '@/components/dialogs/FilterDialog';
 
 const columns: { status: MaintenanceStatus; title: string; color: string }[] = [
-  { status: 'new', title: 'New', color: 'bg-status-new' },
-  { status: 'in_progress', title: 'In Progress', color: 'bg-status-progress' },
-  { status: 'repaired', title: 'Repaired', color: 'bg-status-repaired' },
-  { status: 'scrap', title: 'Scrap', color: 'bg-status-scrap' },
+  { status: 'new', title: 'New', color: 'bg-info' },
+  { status: 'in_progress', title: 'In Progress', color: 'bg-warning' },
+  { status: 'repaired', title: 'Repaired', color: 'bg-success' },
+  { status: 'scrap', title: 'Scrap', color: 'bg-destructive' },
 ];
 
 interface KanbanBoardProps {

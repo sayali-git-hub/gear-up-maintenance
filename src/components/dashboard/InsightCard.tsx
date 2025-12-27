@@ -1,6 +1,5 @@
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 
 interface InsightCardProps {
   title: string;
@@ -14,19 +13,22 @@ interface InsightCardProps {
 
 const variantStyles = {
   critical: {
-    bg: 'bg-red-500',
-    text: 'text-white',
-    iconBg: 'bg-red-600/50',
+    border: 'border-destructive/20',
+    iconBg: 'bg-destructive/10',
+    iconColor: 'text-destructive',
+    valueBg: 'bg-destructive/5',
   },
   info: {
-    bg: 'bg-blue-500',
-    text: 'text-white',
-    iconBg: 'bg-blue-600/50',
+    border: 'border-info/20',
+    iconBg: 'bg-info/10',
+    iconColor: 'text-info',
+    valueBg: 'bg-info/5',
   },
   success: {
-    bg: 'bg-emerald-500',
-    text: 'text-white',
-    iconBg: 'bg-emerald-600/50',
+    border: 'border-success/20',
+    iconBg: 'bg-success/10',
+    iconColor: 'text-success',
+    valueBg: 'bg-success/5',
   },
 };
 
@@ -36,35 +38,30 @@ export const InsightCard = ({
   subtitle,
   icon: Icon,
   variant,
-  delay = 0,
   onClick,
 }: InsightCardProps) => {
   const styles = variantStyles[variant];
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
+    <div
       onClick={onClick}
       className={cn(
-        'relative overflow-hidden rounded-xl p-6 cursor-pointer transition-transform hover:scale-[1.02]',
-        styles.bg,
-        styles.text
+        'bg-card border rounded-lg p-5 cursor-pointer transition-all hover:shadow-sm',
+        styles.border
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium opacity-90">{title}</p>
-          <p className="text-3xl font-bold tracking-tight">{value}</p>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-2xl font-semibold tracking-tight text-foreground">{value}</p>
           {subtitle && (
-            <p className="text-sm opacity-80">{subtitle}</p>
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
           )}
         </div>
-        <div className={cn('p-3 rounded-xl', styles.iconBg)}>
-          <Icon className="w-6 h-6" />
+        <div className={cn('p-2.5 rounded-lg', styles.iconBg)}>
+          <Icon className={cn('w-5 h-5', styles.iconColor)} />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

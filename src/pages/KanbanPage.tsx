@@ -1,8 +1,7 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
-import { motion } from 'framer-motion';
-import { Kanban, ClipboardList } from 'lucide-react';
+import { Kanban } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CreateRequestDialog } from '@/components/dialogs/CreateRequestDialog';
@@ -13,7 +12,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { getTeamById, getTechnicianById } from '@/lib/data';
-import { EmptyState } from '@/components/ui/EmptyState';
 
 const KanbanPage = () => {
   const { requests, equipment } = useData();
@@ -32,7 +30,6 @@ const KanbanPage = () => {
     status: '',
   });
 
-  // Handle URL filter params from dashboard
   useEffect(() => {
     const filterParam = searchParams.get('filter');
     if (filterParam === 'open') {
@@ -55,7 +52,6 @@ const KanbanPage = () => {
     });
   };
 
-  // Filter requests for list view
   const filteredRequests = requests.filter((request) => {
     const eq = equipment.find(e => e.id === request.equipmentId);
     const searchLower = search.toLowerCase();
@@ -67,7 +63,6 @@ const KanbanPage = () => {
 
     if (!matchesSearch) return false;
 
-    // Apply dashboard filter
     const filterParam = searchParams.get('filter');
     if (filterParam === 'open' && (request.status === 'repaired' || request.status === 'scrap')) {
       return false;
@@ -76,7 +71,6 @@ const KanbanPage = () => {
       return false;
     }
 
-    // Apply other filters
     if (filters.equipmentId && request.equipmentId !== filters.equipmentId) return false;
     if (filters.status && request.status !== filters.status) return false;
     if (filters.priority && request.priority !== filters.priority) return false;
@@ -91,11 +85,11 @@ const KanbanPage = () => {
 
   return (
     <MainLayout>
-      <div className="p-8 space-y-6">
+      <div className="p-6 space-y-5">
         <PageHeader
           icon={Kanban}
           title="Requests"
-          description={viewMode === 'grid' ? 'Drag and drop to manage request status' : 'View and manage maintenance requests'}
+          description={viewMode === 'grid' ? 'Drag and drop to update status' : 'All maintenance requests'}
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search requests..."
@@ -110,83 +104,73 @@ const KanbanPage = () => {
           onAddClick={() => setShowCreateDialog(true)}
         />
 
-        {/* Board or List View */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          {viewMode === 'grid' ? (
-            <KanbanBoard filters={filters} search={search} />
-          ) : (
-            <div className="border border-border rounded-xl overflow-hidden bg-card">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Equipment</TableHead>
-                    <TableHead>Team</TableHead>
-                    <TableHead>Technician</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Scheduled Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRequests.map((request) => {
-                    const team = request.teamId ? getTeamById(request.teamId) : null;
-                    const technician = request.assignedTechnicianId 
-                      ? getTechnicianById(request.assignedTechnicianId) 
-                      : null;
-                    return (
-                      <TableRow key={request.id} className="hover:bg-muted/50">
-                        <TableCell className="font-medium">{request.subject}</TableCell>
-                        <TableCell>{getEquipmentName(request.equipmentId)}</TableCell>
-                        <TableCell>
-                          {team ? (
-                            <span 
-                              className="text-xs px-2 py-0.5 rounded-full font-medium"
-                              style={{ 
-                                backgroundColor: `${team.color}15`, 
-                                color: team.color 
-                              }}
-                            >
-                              {team.name}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {technician ? (
-                            <span className="text-sm">{technician.name}</span>
-                          ) : (
-                            <span className="text-muted-foreground text-sm italic">Unassigned</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="capitalize">{request.type}</TableCell>
-                        <TableCell>
-                          <PriorityBadge priority={request.priority} />
-                        </TableCell>
-                        <TableCell>
-                          <StatusBadge status={request.status} />
-                        </TableCell>
-                        <TableCell>{request.scheduledDate}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-              {filteredRequests.length === 0 && (
-                <div className="text-center py-12">
-                  <Kanban className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground">No requests found</p>
-                </div>
-              )}
-            </div>
-          )}
-        </motion.div>
+        {viewMode === 'grid' ? (
+          <KanbanBoard filters={filters} search={search} />
+        ) : (
+          <div className="border border-border rounded-lg overflow-hidden bg-card">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-xs font-medium text-muted-foreground">Subject</TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">Equipment</TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">Team</TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">Technician</TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">Type</TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">Priority</TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">Status</TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRequests.map((request) => {
+                  const team = request.teamId ? getTeamById(request.teamId) : null;
+                  const technician = request.assignedTechnicianId 
+                    ? getTechnicianById(request.assignedTechnicianId) 
+                    : null;
+                  return (
+                    <TableRow 
+                      key={request.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/requests/${request.id}`)}
+                    >
+                      <TableCell className="font-medium text-sm">{request.subject}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{getEquipmentName(request.equipmentId)}</TableCell>
+                      <TableCell>
+                        {team ? (
+                          <span className="text-xs font-medium text-muted-foreground">{team.name}</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {technician ? (
+                          <span className="text-sm">{technician.name}</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground italic">Unassigned</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs capitalize text-muted-foreground">{request.type}</span>
+                      </TableCell>
+                      <TableCell>
+                        <PriorityBadge priority={request.priority} />
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={request.status} />
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{request.scheduledDate}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+            {filteredRequests.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-sm text-muted-foreground">No requests found</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <CreateRequestDialog 

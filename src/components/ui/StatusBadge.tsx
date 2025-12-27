@@ -4,46 +4,38 @@ import { MaintenanceStatus } from '@/lib/data';
 interface StatusBadgeProps {
   status: MaintenanceStatus;
   size?: 'sm' | 'md';
-  showDot?: boolean;
 }
 
-const statusConfig: Record<MaintenanceStatus, { label: string; className: string; dotClass: string }> = {
+const statusConfig: Record<MaintenanceStatus, { label: string; className: string }> = {
   new: { 
     label: 'New', 
-    className: 'bg-status-new/10 text-status-new border-status-new/20',
-    dotClass: 'bg-status-new'
+    className: 'bg-info/10 text-info border-info/20',
   },
   in_progress: { 
     label: 'In Progress', 
-    className: 'bg-status-progress/10 text-status-progress border-status-progress/20',
-    dotClass: 'bg-status-progress animate-pulse'
+    className: 'bg-warning/10 text-warning border-warning/20',
   },
   repaired: { 
     label: 'Repaired', 
-    className: 'bg-status-repaired/10 text-status-repaired border-status-repaired/20',
-    dotClass: 'bg-status-repaired'
+    className: 'bg-success/10 text-success border-success/20',
   },
   scrap: { 
     label: 'Scrap', 
-    className: 'bg-status-scrap/10 text-status-scrap border-status-scrap/20',
-    dotClass: 'bg-status-scrap'
+    className: 'bg-destructive/10 text-destructive border-destructive/20',
   },
 };
 
-export const StatusBadge = ({ status, size = 'md', showDot = true }: StatusBadgeProps) => {
+export const StatusBadge = ({ status, size = 'sm' }: StatusBadgeProps) => {
   const config = statusConfig[status];
   
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border font-medium transition-colors',
+        'inline-flex items-center rounded-md border font-medium',
         config.className,
         size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm'
       )}
     >
-      {showDot && (
-        <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', config.dotClass)} />
-      )}
       {config.label}
     </span>
   );
