@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useData } from '@/contexts/DataContext';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 import { ProfileDialog } from '@/components/dialogs/ProfileDialog';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useState } from 'react';
 
 const navItems = [
@@ -116,8 +117,20 @@ export const AppSidebar = () => {
           )}
         </button>
 
-        {/* Footer - Profile */}
-        <div className="p-4 border-t border-sidebar-border">
+        {/* Footer - Theme & Profile */}
+        <div className="p-4 border-t border-sidebar-border space-y-3">
+          {/* Theme Toggle */}
+          <div className={cn(
+            "flex items-center",
+            collapsed ? "justify-center" : "justify-between"
+          )}>
+            {!collapsed && (
+              <span className="text-xs text-muted-foreground">Theme</span>
+            )}
+            <ThemeToggle />
+          </div>
+          
+          {/* Profile */}
           <button
             onClick={() => setShowProfileDialog(true)}
             className="w-full flex items-center gap-3 hover:bg-sidebar-accent rounded-lg p-1 -m-1 transition-colors"
