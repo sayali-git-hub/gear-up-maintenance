@@ -8,11 +8,11 @@
   :root {
     /* ═══════════════════════════════════════════════════════════════
        Enterprise SaaS Design System - Light Theme
-       Inspired by Linear, Notion, Vercel
+       Airy, Expensive, Calm - Premium Feel
     ═══════════════════════════════════════════════════════════════ */
     
-    /* Background: Off-white, not pure white */
-    --background: 210 20% 98%;
+    /* Background: Soft off-white (#F7F9FC) - not pure white */
+    --background: 218 33% 98%;
     --foreground: 220 20% 14%;
 
     /* Cards: Pure white with subtle elevation */
