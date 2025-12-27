@@ -28,13 +28,13 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const success = await login(loginEmail, loginPassword);
+    const result = await login(loginEmail, loginPassword);
     
-    if (success) {
+    if (result.success) {
       toast.success('Welcome back!');
       navigate('/');
     } else {
-      toast.error('Invalid credentials. Please try again.');
+      toast.error(result.error || 'Invalid credentials. Please try again.');
     }
     
     setIsLoading(false);
@@ -44,13 +44,13 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const success = await signup(signupEmail, signupPassword, signupName);
+    const result = await signup(signupEmail, signupPassword, signupName);
     
-    if (success) {
+    if (result.success) {
       toast.success('Account created successfully!');
       navigate('/');
     } else {
-      toast.error('Failed to create account. Please try again.');
+      toast.error(result.error || 'Failed to create account. Please try again.');
     }
     
     setIsLoading(false);
@@ -81,10 +81,10 @@ const AuthPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
+            <Tabs defaultValue="signup" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="login">Login</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
@@ -182,7 +182,7 @@ const AuthPage = () => {
             </Tabs>
 
             <p className="text-center text-sm text-muted-foreground mt-6">
-              Demo: Use any email and password (min 4 chars)
+              Sign up first to create an account, then login with your credentials
             </p>
           </CardContent>
         </Card>
