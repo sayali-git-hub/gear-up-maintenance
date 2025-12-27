@@ -20,7 +20,7 @@ export const DashboardCard = ({ request, index }: DashboardCardProps) => {
   const technician = request.assignedTechnicianId 
     ? getTechnicianById(request.assignedTechnicianId) 
     : null;
-  const team = equipment ? getTeamById(equipment.maintenanceTeamId) : null;
+  const team = request.teamId ? getTeamById(request.teamId) : null;
 
   return (
     <motion.div
