@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import gearGuardLogo from '@/assets/gear-guard-logo.png';
+import gearGuardLogoDark from '@/assets/gear-guard-logo-dark.png';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -114,17 +115,11 @@ const AuthPage = () => {
       >
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          {isDark ? (
-            <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
-              <Shield className="w-8 h-8 text-white" />
-            </div>
-          ) : (
-            <img 
-              src={gearGuardLogo} 
-              alt="GearGuard Logo" 
-              className="w-14 h-14 object-contain"
-            />
-          )}
+          <img 
+            src={isDark ? gearGuardLogoDark : gearGuardLogo} 
+            alt="GearGuard Logo" 
+            className="w-14 h-14 object-contain"
+          />
           <h1 className="text-3xl font-bold tracking-tight">
             <span className="gradient-text">GearGuard</span>
           </h1>

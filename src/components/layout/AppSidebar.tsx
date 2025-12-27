@@ -22,6 +22,7 @@ import { ThemeToggle, ThemeToggleCompact } from '@/components/ui/ThemeToggle';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import gearGuardLogo from '@/assets/gear-guard-logo.png';
+import gearGuardLogoDark from '@/assets/gear-guard-logo-dark.png';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -69,17 +70,11 @@ export const AppSidebar = () => {
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            {isDark ? (
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-            ) : (
-              <img 
-                src={gearGuardLogo} 
-                alt="GearGuard Logo" 
-                className="w-10 h-10 object-contain"
-              />
-            )}
+            <img 
+              src={isDark ? gearGuardLogoDark : gearGuardLogo} 
+              alt="GearGuard Logo" 
+              className="w-10 h-10 object-contain"
+            />
             <AnimatePresence>
               {!collapsed && (
                 <motion.div
