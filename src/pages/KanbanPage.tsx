@@ -1,13 +1,37 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { motion } from 'framer-motion';
-import { Kanban, Plus, Filter } from 'lucide-react';
+import { Kanban, Plus, Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { CreateRequestDialog } from '@/components/dialogs/CreateRequestDialog';
+import { FilterDialog, KanbanFilters } from '@/components/dialogs/FilterDialog';
+import { Badge } from '@/components/ui/badge';
 
 const KanbanPage = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showFilterDialog, setShowFilterDialog] = useState(false);
+  const [filters, setFilters] = useState<KanbanFilters>({
+    equipmentId: '',
+    teamId: '',
+    technicianId: '',
+    type: '',
+    priority: '',
+    status: '',
+  });
+
+  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
+
+  const handleClearFilters = () => {
+    setFilters({
+      equipmentId: '',
+      teamId: '',
+      technicianId: '',
+      type: '',
+      priority: '',
+      status: '',
+    });
+  };
 
   return (
     <MainLayout>
@@ -30,10 +54,29 @@ const KanbanPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={() => setShowFilterDialog(true)}
+            >
               <Filter className="w-4 h-4" />
               Filter
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5">
+                  {activeFiltersCount}
+                </Badge>
+              )}
             </Button>
+            {activeFiltersCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleClearFilters}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
             <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
               <Plus className="w-4 h-4" />
               New Request
@@ -47,13 +90,20 @@ const KanbanPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <KanbanBoard />
+          <KanbanBoard filters={filters} />
         </motion.div>
       </div>
 
       <CreateRequestDialog 
         open={showCreateDialog} 
         onOpenChange={setShowCreateDialog} 
+      />
+      
+      <FilterDialog
+        open={showFilterDialog}
+        onOpenChange={setShowFilterDialog}
+        filters={filters}
+        onApplyFilters={setFilters}
       />
     </MainLayout>
   );

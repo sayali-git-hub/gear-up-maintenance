@@ -15,10 +15,13 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { isPast, parseISO } from 'date-fns';
+import { useState } from 'react';
+import { CriticalRequestsDialog } from '@/components/dialogs/CriticalRequestsDialog';
 
 const Dashboard = () => {
   const { requests, equipment, teams } = useData();
   const navigate = useNavigate();
+  const [showCriticalDialog, setShowCriticalDialog] = useState(false);
 
   const stats = {
     totalEquipment: equipment.length,
@@ -134,7 +137,10 @@ const Dashboard = () => {
           >
             {/* Critical Alert */}
             {stats.criticalRequests > 0 && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+              <button
+                onClick={() => setShowCriticalDialog(true)}
+                className="w-full bg-red-500/10 border border-red-500/20 rounded-xl p-4 hover:bg-red-500/20 transition-colors text-left"
+              >
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-500 rounded-lg">
                     <AlertTriangle className="w-5 h-5 text-white" />
@@ -144,11 +150,33 @@ const Dashboard = () => {
                       {stats.criticalRequests} Critical
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Require immediate attention
+                      Click to view critical requests
                     </p>
                   </div>
                 </div>
-              </div>
+              </button>
+            )}
+
+            {/* Overdue Alert */}
+            {stats.overdueRequests > 0 && (
+              <button
+                onClick={() => setShowCriticalDialog(true)}
+                className="w-full bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 hover:bg-orange-500/20 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500 rounded-lg">
+                    <Clock className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-orange-600 dark:text-orange-400">
+                      {stats.overdueRequests} Overdue
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Click to view overdue requests
+                    </p>
+                  </div>
+                </div>
+              </button>
             )}
 
             {/* Teams Overview */}
@@ -187,6 +215,11 @@ const Dashboard = () => {
           </motion.div>
         </div>
       </div>
+
+      <CriticalRequestsDialog
+        open={showCriticalDialog}
+        onOpenChange={setShowCriticalDialog}
+      />
     </MainLayout>
   );
 };

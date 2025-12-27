@@ -4,9 +4,12 @@ import { useData } from '@/contexts/DataContext';
 import { motion } from 'framer-motion';
 import { Users, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { AddTeamDialog } from '@/components/dialogs/AddTeamDialog';
 
 const TeamsPage = () => {
   const { teams } = useData();
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   return (
     <MainLayout>
@@ -28,7 +31,7 @@ const TeamsPage = () => {
               </p>
             </div>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowAddDialog(true)}>
             <Plus className="w-4 h-4" />
             Add Team
           </Button>
@@ -41,6 +44,11 @@ const TeamsPage = () => {
           ))}
         </div>
       </div>
+
+      <AddTeamDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+      />
     </MainLayout>
   );
 };
