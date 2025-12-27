@@ -72,7 +72,7 @@ export const RequestsTable = () => {
             const tech = request.assignedTechnicianId 
               ? getTechnicianById(request.assignedTechnicianId) 
               : null;
-            const team = request.teamId ? getTeamById(request.teamId) : null;
+            const team = eq ? getTeamById(eq.maintenanceTeamId) : null;
 
             return (
               <TableRow 

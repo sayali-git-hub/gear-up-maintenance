@@ -42,7 +42,6 @@ export interface MaintenanceRequest {
   status: MaintenanceStatus;
   scheduledDate: string;
   duration: number; // in hours
-  teamId: string | null;
   assignedTechnicianId: string | null;
   timeSpent: number; // in hours
   priority: 'low' | 'medium' | 'high' | 'critical';
@@ -88,26 +87,6 @@ export const maintenanceTeams: MaintenanceTeam[] = [
     color: '#8B5CF6',
     technicians: [
       { id: 'tech-7', name: 'David Brown', email: 'david@gearguard.io', avatar: '', teamId: 'team-4' },
-    ],
-  },
-  {
-    id: 'team-5',
-    name: 'Housekeeping & Sanitation',
-    description: 'Cleaning equipment and waste management systems',
-    color: '#EC4899',
-    technicians: [
-      { id: 'tech-8', name: 'Maria Garcia', email: 'maria@gearguard.io', avatar: '', teamId: 'team-5' },
-      { id: 'tech-9', name: 'James Thompson', email: 'james@gearguard.io', avatar: '', teamId: 'team-5' },
-    ],
-  },
-  {
-    id: 'team-6',
-    name: 'Security Systems',
-    description: 'CCTV, access control, and alarm systems',
-    color: '#06B6D4',
-    technicians: [
-      { id: 'tech-10', name: 'Kevin Lee', email: 'kevin@gearguard.io', avatar: '', teamId: 'team-6' },
-      { id: 'tech-11', name: 'Rachel Adams', email: 'rachel@gearguard.io', avatar: '', teamId: 'team-6' },
     ],
   },
 ];
@@ -209,7 +188,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'new',
     scheduledDate: '2025-01-05',
     duration: 4,
-    teamId: 'team-1',
     assignedTechnicianId: null,
     timeSpent: 0,
     priority: 'medium',
@@ -224,7 +202,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'in_progress',
     scheduledDate: '2024-12-28',
     duration: 6,
-    teamId: 'team-2',
     assignedTechnicianId: 'tech-3',
     timeSpent: 2,
     priority: 'high',
@@ -239,7 +216,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'in_progress',
     scheduledDate: '2024-12-27',
     duration: 2,
-    teamId: 'team-3',
     assignedTechnicianId: 'tech-5',
     timeSpent: 1,
     priority: 'critical',
@@ -254,7 +230,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'repaired',
     scheduledDate: '2024-12-15',
     duration: 3,
-    teamId: 'team-4',
     assignedTechnicianId: 'tech-7',
     timeSpent: 2.5,
     priority: 'low',
@@ -269,7 +244,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'new',
     scheduledDate: '2024-12-30',
     duration: 5,
-    teamId: 'team-1',
     assignedTechnicianId: 'tech-2',
     timeSpent: 0,
     priority: 'high',
@@ -284,7 +258,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'new',
     scheduledDate: '2025-01-10',
     duration: 4,
-    teamId: 'team-2',
     assignedTechnicianId: null,
     timeSpent: 0,
     priority: 'medium',
@@ -299,7 +272,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'repaired',
     scheduledDate: '2024-12-22',
     duration: 2,
-    teamId: 'team-1',
     assignedTechnicianId: 'tech-1',
     timeSpent: 1.5,
     priority: 'medium',
@@ -314,7 +286,6 @@ export const maintenanceRequests: MaintenanceRequest[] = [
     status: 'scrap',
     scheduledDate: '2024-12-10',
     duration: 8,
-    teamId: 'team-2',
     assignedTechnicianId: 'tech-4',
     timeSpent: 8,
     priority: 'critical',

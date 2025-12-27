@@ -1,8 +1,10 @@
+import { ReactNode } from 'react';
 import { AppSidebar } from './AppSidebar';
 import { useSidebarContext } from '@/contexts/SidebarContext';
+import { motion } from 'framer-motion';
 
 interface MainLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
@@ -11,12 +13,14 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
-      <main 
-        className="flex-1 overflow-auto transition-[margin] duration-200 ease-in-out"
-        style={{ marginLeft: collapsed ? 64 : 240 }}
+      <motion.main 
+        initial={false}
+        animate={{ marginLeft: collapsed ? 72 : 260 }}
+        transition={{ duration: 0.2, ease: 'easeInOut' }}
+        className="flex-1 overflow-auto"
       >
         {children}
-      </main>
+      </motion.main>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,114 +6,95 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 220 15% 15%;
+    --background: 220 20% 97%;
+    --foreground: 220 25% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 15%;
+    --card-foreground: 220 25% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 15%;
+    --popover-foreground: 220 25% 10%;
 
-    --primary: 220 70% 50%;
+    --primary: 25 95% 53%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 10% 94%;
-    --secondary-foreground: 220 15% 25%;
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 220 25% 20%;
 
-    --muted: 220 10% 96%;
+    --muted: 220 15% 94%;
     --muted-foreground: 220 10% 45%;
 
-    --accent: 220 10% 92%;
-    --accent-foreground: 220 15% 20%;
+    --accent: 220 15% 90%;
+    --accent-foreground: 220 25% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 25 95% 53%;
+
+    --radius: 0.75rem;
+
+    /* Custom GearGuard tokens */
+    --status-new: 217 91% 60%;
+    --status-progress: 45 93% 47%;
+    --status-repaired: 142 76% 36%;
+    --status-scrap: 0 84% 60%;
+    
+    --glow-primary: 0 8px 32px -8px hsl(25 95% 53% / 0.4);
+    --glow-card: 0 4px 24px -4px hsl(220 25% 10% / 0.08);
+    
+    --sidebar-background: 220 25% 10%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 18%;
+    --sidebar-accent-foreground: 220 15% 85%;
+    --sidebar-border: 220 20% 18%;
+    --sidebar-ring: 25 95% 53%;
+  }
+
+  .dark {
+    --background: 220 25% 8%;
+    --foreground: 220 15% 95%;
+
+    --card: 220 25% 12%;
+    --card-foreground: 220 15% 95%;
+
+    --popover: 220 25% 12%;
+    --popover-foreground: 220 15% 95%;
+
+    --primary: 25 95% 55%;
+    --primary-foreground: 220 25% 8%;
+
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 220 15% 85%;
+
+    --muted: 220 20% 16%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 220 20% 20%;
+    --accent-foreground: 220 15% 90%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 70% 40%;
-    --success-foreground: 0 0% 100%;
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 25 95% 55%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-
-    --info: 210 80% 55%;
-    --info-foreground: 0 0% 100%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 70% 50%;
-
-    --radius: 0.5rem;
-
-    /* Status tokens - clean, minimal colors */
-    --status-new: 210 80% 55%;
-    --status-progress: 38 92% 50%;
-    --status-repaired: 142 70% 40%;
-    --status-scrap: 0 72% 51%;
-
-    /* Priority colors */
-    --priority-low: 220 10% 55%;
-    --priority-medium: 210 80% 55%;
-    --priority-high: 25 90% 50%;
-    --priority-critical: 0 72% 51%;
-
-    /* Sidebar - clean dark theme */
-    --sidebar-background: 220 15% 13%;
-    --sidebar-foreground: 220 10% 75%;
-    --sidebar-primary: 220 70% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 18%;
-    --sidebar-accent-foreground: 220 10% 85%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 220 70% 55%;
-  }
-
-  .dark {
-    --background: 220 15% 8%;
-    --foreground: 220 10% 95%;
-
-    --card: 220 15% 11%;
-    --card-foreground: 220 10% 95%;
-
-    --popover: 220 15% 11%;
-    --popover-foreground: 220 10% 95%;
-
-    --primary: 220 70% 55%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 220 10% 85%;
-
-    --muted: 220 15% 15%;
-    --muted-foreground: 220 10% 55%;
-
-    --accent: 220 15% 20%;
-    --accent-foreground: 220 10% 90%;
-
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 142 65% 45%;
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 88% 55%;
-    --warning-foreground: 220 15% 10%;
-
-    --info: 210 75% 60%;
-    --info-foreground: 220 15% 10%;
-
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 220 70% 55%;
-
-    --sidebar-background: 220 15% 6%;
-    --sidebar-foreground: 220 10% 75%;
-    --sidebar-primary: 220 70% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 12%;
-    --sidebar-accent-foreground: 220 10% 85%;
-    --sidebar-border: 220 15% 12%;
-    --sidebar-ring: 220 70% 55%;
+    --glow-primary: 0 8px 32px -8px hsl(25 95% 55% / 0.3);
+    --glow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
+    
+    --sidebar-background: 220 25% 6%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 25 95% 55%;
+    --sidebar-primary-foreground: 220 25% 8%;
+    --sidebar-accent: 220 20% 12%;
+    --sidebar-accent-foreground: 220 15% 85%;
+    --sidebar-border: 220 20% 12%;
+    --sidebar-ring: 25 95% 55%;
   }
 }
 
@@ -131,65 +112,78 @@
   }
 }
 
-@layer components {
-  /* Clean card style */
-  .card-clean {
-    @apply bg-card border border-border rounded-lg transition-colors;
-  }
-
-  .card-interactive {
-    @apply card-clean hover:border-primary/40;
-  }
-
-  /* Status indicator dots - minimal */
-  .status-dot {
-    @apply w-2 h-2 rounded-full flex-shrink-0;
-  }
-
-  .status-dot-new {
-    @apply status-dot bg-info;
-  }
-
-  .status-dot-progress {
-    @apply status-dot bg-warning;
-  }
-
-  .status-dot-repaired {
-    @apply status-dot bg-success;
-  }
-
-  .status-dot-scrap {
-    @apply status-dot bg-destructive;
-  }
-}
-
 @layer utilities {
-  /* Subtle shadow */
-  .shadow-soft {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
   }
 
-  /* Table row hover */
-  .table-row-hover {
-    @apply hover:bg-muted/50 transition-colors cursor-pointer;
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-card {
+    box-shadow: var(--glow-card);
+  }
+
+  .status-new {
+    @apply bg-[hsl(var(--status-new))] text-white;
+  }
+
+  .status-progress {
+    @apply bg-[hsl(var(--status-progress))] text-white;
+  }
+
+  .status-repaired {
+    @apply bg-[hsl(var(--status-repaired))] text-white;
+  }
+
+  .status-scrap {
+    @apply bg-[hsl(var(--status-scrap))] text-white;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-[hsl(35,95%,60%)] bg-clip-text text-transparent;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
   }
 }
 
-/* Minimal scrollbar */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  @apply bg-muted/50 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full hover:bg-muted-foreground/30;
-}
-
-/* Selection */
-::selection {
-  @apply bg-primary/15 text-foreground;
+  @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
 }

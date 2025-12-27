@@ -28,13 +28,13 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await login(loginEmail, loginPassword);
+    const success = await login(loginEmail, loginPassword);
     
-    if (result.success) {
+    if (success) {
       toast.success('Welcome back!');
       navigate('/');
     } else {
-      toast.error(result.error || 'Invalid credentials. Please try again.');
+      toast.error('Invalid credentials. Please try again.');
     }
     
     setIsLoading(false);
@@ -44,13 +44,13 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await signup(signupEmail, signupPassword, signupName);
+    const success = await signup(signupEmail, signupPassword, signupName);
     
-    if (result.success) {
+    if (success) {
       toast.success('Account created successfully!');
       navigate('/');
     } else {
-      toast.error(result.error || 'Failed to create account. Please try again.');
+      toast.error('Failed to create account. Please try again.');
     }
     
     setIsLoading(false);
@@ -81,10 +81,10 @@ const AuthPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signup" className="w-full">
+            <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
                 <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
@@ -116,7 +116,7 @@ const AuthPage = () => {
                         onChange={(e) => setLoginPassword(e.target.value)}
                         className="pl-10"
                         required
-                        minLength={6}
+                        minLength={4}
                       />
                     </div>
                   </div>
@@ -170,7 +170,7 @@ const AuthPage = () => {
                         onChange={(e) => setSignupPassword(e.target.value)}
                         className="pl-10"
                         required
-                        minLength={6}
+                        minLength={4}
                       />
                     </div>
                   </div>
@@ -182,7 +182,7 @@ const AuthPage = () => {
             </Tabs>
 
             <p className="text-center text-sm text-muted-foreground mt-6">
-              Sign up first to create an account, then login with your credentials
+              Demo: Use any email and password (min 4 chars)
             </p>
           </CardContent>
         </Card>

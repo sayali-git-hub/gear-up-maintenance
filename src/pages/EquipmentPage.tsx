@@ -89,10 +89,11 @@ const EquipmentPage = () => {
         {/* Equipment Grid or List */}
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEquipment.map((eq) => (
+            {filteredEquipment.map((eq, index) => (
               <EquipmentCard 
                 key={eq.id} 
                 equipment={eq} 
+                delay={index * 0.05}
               />
             ))}
           </div>

@@ -1,5 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface InsightCardProps {
   title: string;
@@ -13,22 +14,19 @@ interface InsightCardProps {
 
 const variantStyles = {
   critical: {
-    border: 'border-destructive/20',
-    iconBg: 'bg-destructive/10',
-    iconColor: 'text-destructive',
-    valueBg: 'bg-destructive/5',
+    bg: 'bg-red-500',
+    text: 'text-white',
+    iconBg: 'bg-red-600/50',
   },
   info: {
-    border: 'border-info/20',
-    iconBg: 'bg-info/10',
-    iconColor: 'text-info',
-    valueBg: 'bg-info/5',
+    bg: 'bg-blue-500',
+    text: 'text-white',
+    iconBg: 'bg-blue-600/50',
   },
   success: {
-    border: 'border-success/20',
-    iconBg: 'bg-success/10',
-    iconColor: 'text-success',
-    valueBg: 'bg-success/5',
+    bg: 'bg-emerald-500',
+    text: 'text-white',
+    iconBg: 'bg-emerald-600/50',
   },
 };
 
@@ -38,30 +36,35 @@ export const InsightCard = ({
   subtitle,
   icon: Icon,
   variant,
+  delay = 0,
   onClick,
 }: InsightCardProps) => {
   const styles = variantStyles[variant];
   
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay }}
       onClick={onClick}
       className={cn(
-        'bg-card border rounded-lg p-5 cursor-pointer transition-all hover:shadow-sm',
-        styles.border
+        'relative overflow-hidden rounded-xl p-6 cursor-pointer transition-transform hover:scale-[1.02]',
+        styles.bg,
+        styles.text
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+        <div className="space-y-1">
+          <p className="text-sm font-medium opacity-90">{title}</p>
+          <p className="text-3xl font-bold tracking-tight">{value}</p>
           {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
+            <p className="text-sm opacity-80">{subtitle}</p>
           )}
         </div>
-        <div className={cn('p-2.5 rounded-lg', styles.iconBg)}>
-          <Icon className={cn('w-5 h-5', styles.iconColor)} />
+        <div className={cn('p-3 rounded-xl', styles.iconBg)}>
+          <Icon className="w-6 h-6" />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
