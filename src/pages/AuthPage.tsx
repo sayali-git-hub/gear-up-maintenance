@@ -116,7 +116,7 @@ const AuthPage = () => {
                         onChange={(e) => setLoginPassword(e.target.value)}
                         className="pl-10"
                         required
-                        minLength={4}
+                        minLength={6}
                       />
                     </div>
                   </div>
@@ -170,7 +170,7 @@ const AuthPage = () => {
                         onChange={(e) => setSignupPassword(e.target.value)}
                         className="pl-10"
                         required
-                        minLength={4}
+                        minLength={6}
                       />
                     </div>
                   </div>
