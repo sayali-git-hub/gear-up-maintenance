@@ -23,6 +23,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
+import { AITeamValidator } from '@/components/ai/AITeamValidator';
 import { cn } from '@/lib/utils';
 
 const statusConfig = {
@@ -303,6 +304,11 @@ const RequestDetailPage = () => {
                   <p className="text-sm text-muted-foreground">No technician assigned</p>
                 </div>
               )}
+            </div>
+
+            {/* AI Team Validator */}
+            <div className="pt-4 border-t border-border">
+              <AITeamValidator request={request} />
             </div>
           </motion.div>
         </div>
