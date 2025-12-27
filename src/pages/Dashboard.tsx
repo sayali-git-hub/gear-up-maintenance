@@ -83,7 +83,7 @@ const Dashboard = () => {
           searchPlaceholder="Search maintenance requests..."
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          addButtonLabel="Add Request"
+          addButtonLabel="Add"
           onAddClick={() => setShowCreateDialog(true)}
         />
 
